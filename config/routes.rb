@@ -10,6 +10,11 @@ Rails.application.routes.draw do
   get "dashboard", to: "dashboard#index", as: :dashboard
 
   # =======================================================
+  # MÓDULOS OPERATIVOS (CRUDs)
+  # =======================================================
+  resources :perfiles
+
+  # =======================================================
   # RUTAS DE SEGURIDAD
   # =======================================================
   get    "login",  to: "sesiones#new"

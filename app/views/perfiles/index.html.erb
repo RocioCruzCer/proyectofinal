@@ -1,0 +1,181 @@
+<div style="font-family: sans-serif; padding: 20px;">
+  <h2>Gestión de Perfiles</h2>
+  
+  <button id="btnNuevo" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; margin-bottom: 15px;">
+    + Nuevo Perfil
+  </button>
+
+  <div id="formularioPerfil" style="display: none; background-color: #f4f4f4; padding: 15px; border: 1px solid #ddd; margin-bottom: 20px;">
+    <h3 id="formTitulo">Crear Perfil</h3>
+    <input type="hidden" id="perfilId">
+    
+    <label>Nombre del Perfil:</label><br>
+    <input type="text" id="strNombrePerfil" style="width: 100%; padding: 8px; margin-bottom: 10px;" required>
+    
+    <label>
+      <input type="checkbox" id="bitAdministrador"> Es Administrador
+    </label><br><br>
+
+    <button id="btnGuardar" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; cursor: pointer;">Guardar</button>
+    <button id="btnCancelar" style="padding: 8px 15px; background-color: #6c757d; color: white; border: none; cursor: pointer;">Cancelar</button>
+  </div>
+
+  <table border="1" width="100%" cellspacing="0" cellpadding="10" style="text-align: left; border-collapse: collapse;">
+    <thead style="background-color: #1a3c5b; color: white;">
+      <tr>
+        <th>ID</th>
+        <th>Nombre del Perfil</th>
+        <th>Administrador</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tablaPerfilesCuerpo">
+      </tbody>
+  </table>
+
+  <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+    <button id="btnAnterior" style="padding: 5px 10px; cursor: pointer;">◀ Anterior</button>
+    <span id="textoPaginacion">Página 1</span>
+    <button id="btnSiguiente" style="padding: 5px 10px; cursor: pointer;">Siguiente ▶</button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("turbo:load", function() {
+    let paginaActual = 1;
+
+    // Obtener el Token de Seguridad de Rails para poder enviar datos
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+    // Elementos del DOM
+    const cuerpoTabla = document.getElementById("tablaPerfilesCuerpo");
+    const formulario = document.getElementById("formularioPerfil");
+    const inputId = document.getElementById("perfilId");
+    const inputNombre = document.getElementById("strNombrePerfil");
+    const inputAdmin = document.getElementById("bitAdministrador");
+    const tituloForm = document.getElementById("formTitulo");
+
+    // Función principal: Cargar datos desde el servidor usando Fetch API
+    function cargarPerfiles(pagina) {
+      fetch(`/perfiles.json?page=${pagina}`)
+        .then(response => response.json())
+        .then(data => {
+          cuerpoTabla.innerHTML = ""; // Limpiar tabla
+          
+          if(data.perfiles.length === 0) {
+            cuerpoTabla.innerHTML = "<tr><td colspan='4' style='text-align:center;'>No hay perfiles registrados.</td></tr>";
+          }
+
+          data.perfiles.forEach(perfil => {
+            const fila = document.createElement("tr");
+            fila.innerHTML = `
+              <td>${perfil.id}</td>
+              <td>${perfil.strNombrePerfil}</td>
+              <td>${perfil.bitAdministrador ? "Sí" : "No"}</td>
+              <td>
+                <button onclick="editarPerfil(${perfil.id}, '${perfil.strNombrePerfil}', ${perfil.bitAdministrador})" style="background-color: #ffc107; border:none; padding:5px; cursor:pointer;">Editar</button>
+                <button onclick="eliminarPerfil(${perfil.id})" style="background-color: #dc3545; color:white; border:none; padding:5px; cursor:pointer;">Eliminar</button>
+              </td>
+            `;
+            cuerpoTabla.appendChild(fila);
+          });
+
+          // Actualizar controles de paginación
+          document.getElementById("textoPaginacion").innerText = `Página ${data.pagina_actual} de ${data.total_paginas}`;
+          document.getElementById("btnAnterior").disabled = data.pagina_actual <= 1;
+          document.getElementById("btnSiguiente").disabled = data.pagina_actual >= data.total_paginas;
+          paginaActual = data.pagina_actual;
+        });
+    }
+
+    // Cargar la primera página al abrir la vista
+    cargarPerfiles(paginaActual);
+
+    // PAGINACIÓN: Eventos de los botones
+    document.getElementById("btnAnterior").addEventListener("click", () => cargarPerfiles(paginaActual - 1));
+    document.getElementById("btnSiguiente").addEventListener("click", () => cargarPerfiles(paginaActual + 1));
+
+    // MOSTRAR/OCULTAR FORMULARIO
+    document.getElementById("btnNuevo").addEventListener("click", () => {
+      tituloForm.innerText = "Crear Perfil";
+      inputId.value = "";
+      inputNombre.value = "";
+      inputAdmin.checked = false;
+      formulario.style.display = "block";
+    });
+
+    document.getElementById("btnCancelar").addEventListener("click", () => {
+      formulario.style.display = "none";
+    });
+
+    // GUARDAR O ACTUALIZAR (Fetch API POST/PUT)
+    document.getElementById("btnGuardar").addEventListener("click", () => {
+      const nombre = inputNombre.value.trim();
+      if (nombre === "") {
+        alert("El nombre del perfil es obligatorio");
+        return;
+      }
+
+      const id = inputId.value;
+      const metodo = id ? "PUT" : "POST";
+      const url = id ? `/perfiles/${id}.json` : "/perfiles.json";
+      
+      const payload = {
+        perfil: {
+          strNombrePerfil: nombre,
+          bitAdministrador: inputAdmin.checked
+        }
+      };
+
+      fetch(url, {
+        method: metodo,
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          formulario.style.display = "none";
+          cargarPerfiles(paginaActual); // Recargar la tabla sin refrescar la página
+        } else {
+          alert("Error: " + data.errors.join(", "));
+        }
+      })
+      .catch(error => console.error("Error en la petición:", error));
+    });
+
+    // EDITAR: Llena el formulario con los datos de la fila
+    window.editarPerfil = function(id, nombre, isAdmin) {
+      tituloForm.innerText = "Editar Perfil";
+      inputId.value = id;
+      inputNombre.value = nombre;
+      inputAdmin.checked = isAdmin;
+      formulario.style.display = "block";
+    };
+
+    // ELIMINAR (Fetch API DELETE)
+    window.eliminarPerfil = function(id) {
+      if (confirm("¿Estás seguro de eliminar este perfil?")) {
+        fetch(`/perfiles/${id}.json`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrfToken
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            cargarPerfiles(paginaActual); // Recargar tabla
+          } else {
+            alert("Error al eliminar");
+          }
+        })
+        .catch(error => console.error("Error en la petición:", error));
+      }
+    };
+  });
+</script>
