@@ -1,7 +1,5 @@
 Rails.application.routes.draw do
-  # =======================================================
-  # PANTALLA PRINCIPAL (El Login es la raíz de todo)
-  # =======================================================
+
   root "sesiones#new"
 
   # =======================================================
@@ -13,7 +11,7 @@ Rails.application.routes.draw do
   # MÓDULOS OPERATIVOS (CRUDs)
   # =======================================================
   resources :perfiles
-
+  resources :modulos
   # =======================================================
   # RUTAS DE SEGURIDAD
   # =======================================================

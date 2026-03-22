@@ -1,0 +1,172 @@
+<div style="font-family: sans-serif; padding: 20px;">
+  <h2>Gestión de Módulos</h2>
+  
+  <button id="btnNuevo" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; margin-bottom: 15px;">
+    + Nuevo Módulo
+  </button>
+
+  <div id="formularioModulo" style="display: none; background-color: #f4f4f4; padding: 15px; border: 1px solid #ddd; margin-bottom: 20px;">
+    <h3 id="formTitulo">Crear Módulo</h3>
+    <input type="hidden" id="moduloId">
+    
+    <label>Nombre del Módulo:</label><br>
+    <input type="text" id="strNombreModulo" style="width: 100%; padding: 8px; margin-bottom: 10px;" required>
+    
+    <br>
+    <button id="btnGuardar" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; cursor: pointer;">Guardar</button>
+    <button id="btnCancelar" style="padding: 8px 15px; background-color: #6c757d; color: white; border: none; cursor: pointer;">Cancelar</button>
+  </div>
+
+  <table border="1" width="100%" cellspacing="0" cellpadding="10" style="text-align: left; border-collapse: collapse;">
+    <thead style="background-color: #1a3c5b; color: white;">
+      <tr>
+        <th>ID</th>
+        <th>Nombre del Módulo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tablaModulosCuerpo">
+      </tbody>
+  </table>
+
+  <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+    <button id="btnAnterior" style="padding: 5px 10px; cursor: pointer;">◀ Anterior</button>
+    <span id="textoPaginacion">Página 1</span>
+    <button id="btnSiguiente" style="padding: 5px 10px; cursor: pointer;">Siguiente ▶</button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("turbo:load", function() {
+    let paginaActual = 1;
+
+    // Obtener el Token de Seguridad de Rails
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+    // Elementos del DOM
+    const cuerpoTabla = document.getElementById("tablaModulosCuerpo");
+    const formulario = document.getElementById("formularioModulo");
+    const inputId = document.getElementById("moduloId");
+    const inputNombre = document.getElementById("strNombreModulo");
+    const tituloForm = document.getElementById("formTitulo");
+
+    // Función principal: Cargar datos desde el servidor usando Fetch API
+    function cargarModulos(pagina) {
+      fetch(`/modulos.json?page=${pagina}`)
+        .then(response => response.json())
+        .then(data => {
+          cuerpoTabla.innerHTML = ""; // Limpiar tabla
+          
+          if(data.modulos.length === 0) {
+            cuerpoTabla.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No hay módulos registrados.</td></tr>";
+          }
+
+          data.modulos.forEach(modulo => {
+            const fila = document.createElement("tr");
+            fila.innerHTML = `
+              <td>${modulo.id}</td>
+              <td>${modulo.strNombreModulo}</td>
+              <td>
+                <button onclick="editarModulo(${modulo.id}, '${modulo.strNombreModulo}')" style="background-color: #ffc107; border:none; padding:5px; cursor:pointer;">Editar</button>
+                <button onclick="eliminarModulo(${modulo.id})" style="background-color: #dc3545; color:white; border:none; padding:5px; cursor:pointer;">Eliminar</button>
+              </td>
+            `;
+            cuerpoTabla.appendChild(fila);
+          });
+
+          // Actualizar controles de paginación
+          document.getElementById("textoPaginacion").innerText = `Página ${data.pagina_actual} de ${data.total_paginas || 1}`;
+          document.getElementById("btnAnterior").disabled = data.pagina_actual <= 1;
+          document.getElementById("btnSiguiente").disabled = data.pagina_actual >= (data.total_paginas || 1);
+          paginaActual = data.pagina_actual;
+        });
+    }
+
+    // Cargar la primera página
+    cargarModulos(paginaActual);
+
+    // PAGINACIÓN: Eventos
+    document.getElementById("btnAnterior").addEventListener("click", () => cargarModulos(paginaActual - 1));
+    document.getElementById("btnSiguiente").addEventListener("click", () => cargarModulos(paginaActual + 1));
+
+    // MOSTRAR/OCULTAR FORMULARIO
+    document.getElementById("btnNuevo").addEventListener("click", () => {
+      tituloForm.innerText = "Crear Módulo";
+      inputId.value = "";
+      inputNombre.value = "";
+      formulario.style.display = "block";
+    });
+
+    document.getElementById("btnCancelar").addEventListener("click", () => {
+      formulario.style.display = "none";
+    });
+
+    // GUARDAR O ACTUALIZAR (Fetch API POST/PUT)
+    document.getElementById("btnGuardar").addEventListener("click", () => {
+      const nombre = inputNombre.value.trim();
+      if (nombre === "") {
+        alert("El nombre del módulo es obligatorio");
+        return;
+      }
+
+      const id = inputId.value;
+      const metodo = id ? "PUT" : "POST";
+      const url = id ? `/modulos/${id}.json` : "/modulos.json";
+      
+      const payload = {
+        modulo: {
+          strNombreModulo: nombre
+        }
+      };
+
+      fetch(url, {
+        method: metodo,
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          formulario.style.display = "none";
+          cargarModulos(paginaActual);
+        } else {
+          alert("Error: " + data.errors.join(", "));
+        }
+      })
+      .catch(error => console.error("Error:", error));
+    });
+
+    // EDITAR
+    window.editarModulo = function(id, nombre) {
+      tituloForm.innerText = "Editar Módulo";
+      inputId.value = id;
+      inputNombre.value = nombre;
+      formulario.style.display = "block";
+    };
+
+    // ELIMINAR
+    window.eliminarModulo = function(id) {
+      if (confirm("¿Estás seguro de eliminar este módulo?")) {
+        fetch(`/modulos/${id}.json`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrfToken
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            cargarModulos(paginaActual);
+          } else {
+            alert("Error al eliminar");
+          }
+        })
+        .catch(error => console.error("Error:", error));
+      }
+    };
+  });
+</script>
