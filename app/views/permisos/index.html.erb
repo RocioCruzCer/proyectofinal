@@ -1,0 +1,122 @@
+<div style="font-family: sans-serif; padding: 20px;">
+  <h2>Permisos Perfil</h2>
+  
+  <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ddd;">
+    <label>Perfil:</label><br>
+    <select id="selectPerfil" style="width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 10px;">
+      <option value="">Seleccione un perfil...</option>
+      <% @perfiles.each do |p| %>
+        <option value="<%= p.id %>"><%= p.strNombrePerfil %></option>
+      <% end %>
+    </select>
+    <button id="btnBuscar" style="background-color: #007bff; color: white; border: none; padding: 8px 20px; cursor: pointer; border-radius: 4px;">Buscar</button>
+  </div>
+
+  <h3 id="tituloModulos" style="display:none; color: #333;">[Módulos Web]</h3>
+
+  <div id="contenedorTabla" style="display:none;">
+    <table border="1" width="100%" cellspacing="0" cellpadding="10" style="text-align: left; border-collapse: collapse; border: 1px solid #dee2e6;">
+      <thead style="background-color: #3b5bdb; color: white;">
+        <tr>
+          <th width="30%">Módulo</th>
+          <th style="text-align:center;">Agregar</th>
+          <th style="text-align:center;">Editar</th>
+          <th style="text-align:center;">Eliminar</th>
+          <th style="text-align:center;">Consultar</th>
+          <th style="text-align:center;">Detalle</th>
+        </tr>
+      </thead>
+      <tbody id="cuerpoMatriz">
+        </tbody>
+    </table>
+
+    <div style="margin-top: 20px;">
+      <button id="btnGuardarMatriz" style="padding: 10px 25px; background-color: #3b5bdb; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold;">Guardar</button>
+      <button id="btnCancelarMatriz" style="padding: 10px 25px; background-color: #6c757d; color: white; border: none; cursor: pointer; border-radius: 4px;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("turbo:load", function() {
+  const selectPerfil = document.getElementById("selectPerfil");
+  const btnBuscar = document.getElementById("btnBuscar");
+  const cuerpoMatriz = document.getElementById("cuerpoMatriz");
+  const contenedor = document.getElementById("contenedorTabla");
+  const titulo = document.getElementById("tituloModulos");
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+  // Acción de Buscar
+  btnBuscar.onclick = () => {
+    const perfilId = selectPerfil.value;
+    if (!perfilId) {
+      alert("Por favor, seleccione un perfil");
+      return;
+    }
+
+    fetch(`/permisos/buscar.json?perfil_id=${perfilId}`)
+      .then(res => res.json())
+      .then(data => {
+        cuerpoMatriz.innerHTML = "";
+        data.forEach(m => {
+          const fila = document.createElement("tr");
+          fila.setAttribute("data-id-modulo", m.idModulo);
+          fila.innerHTML = `
+            <td style="background: #fcfcfc; font-weight: bold; color: #555; border-bottom: 1px solid #eee;">${m.nombreModulo}</td>
+            <td align="center" style="border-bottom: 1px solid #eee;"><input type="checkbox" class="chk-agregar" ${m.bitAgregar ? 'checked' : ''}></td>
+            <td align="center" style="border-bottom: 1px solid #eee;"><input type="checkbox" class="chk-editar" ${m.bitEditar ? 'checked' : ''}></td>
+            <td align="center" style="border-bottom: 1px solid #eee;"><input type="checkbox" class="chk-eliminar" ${m.bitEliminar ? 'checked' : ''}></td>
+            <td align="center" style="border-bottom: 1px solid #eee;"><input type="checkbox" class="chk-consultar" ${m.bitConsulta ? 'checked' : ''}></td>
+            <td align="center" style="border-bottom: 1px solid #eee;"><input type="checkbox" class="chk-detalle" ${m.bitDetalle ? 'checked' : ''}></td>
+          `;
+          cuerpoMatriz.appendChild(fila);
+        });
+        contenedor.style.display = "block";
+        titulo.style.display = "block";
+      });
+  };
+
+  // Acción de Guardar Todo
+  document.getElementById("btnGuardarMatriz").onclick = () => {
+    const filas = cuerpoMatriz.querySelectorAll("tr");
+    const listaPermisos = Array.from(filas).map(tr => {
+      return {
+        idModulo: tr.getAttribute("data-id-modulo"),
+        bitAgregar: tr.querySelector(".chk-agregar").checked,
+        bitEditar: tr.querySelector(".chk-editar").checked,
+        bitEliminar: tr.querySelector(".chk-eliminar").checked,
+        bitConsulta: tr.querySelector(".chk-consultar").checked,
+        bitDetalle: tr.querySelector(".chk-detalle").checked
+      };
+    });
+
+    const payload = {
+      idPerfil: selectPerfil.value,
+      permisos: listaPermisos
+    };
+
+    fetch("/permisos/guardar_matriz", {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json", 
+        "X-CSRF-Token": csrfToken 
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert("¡Permisos guardados con éxito!");
+      } else {
+        alert("Error al guardar: " + data.errors.join(", "));
+      }
+    });
+  };
+
+  document.getElementById("btnCancelarMatriz").onclick = () => {
+    contenedor.style.display = "none";
+    titulo.style.display = "none";
+    selectPerfil.value = "";
+  };
+});
+</script>

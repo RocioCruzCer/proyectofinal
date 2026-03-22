@@ -1,0 +1,194 @@
+<div style="font-family: sans-serif; padding: 20px;">
+  <h2>Gestión de Usuarios</h2>
+  <button id="btnNuevo" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; margin-bottom: 15px;">
+    + Nuevo Usuario
+  </button>
+
+  <div id="formularioUsuario" style="display: none; background-color: #f4f4f4; padding: 15px; border: 1px solid #ddd; margin-bottom: 20px;">
+    <h3 id="formTitulo">Crear Usuario</h3>
+    <input type="hidden" id="usuarioId">
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+      <div>
+        <label>Nombre Completo:</label><br>
+        <input type="text" id="strNombreUsuario" style="width: 100%; padding: 8px;">
+      </div>
+      <div>
+        <label>Correo Electrónico:</label><br>
+        <input type="email" id="strCorreo" style="width: 100%; padding: 8px;">
+      </div>
+      <div>
+        <label>Celular:</label><br>
+        <input type="text" id="strNumeroCelular" style="width: 100%; padding: 8px;">
+      </div>
+      <div>
+        <label>Contraseña:</label><br>
+        <input type="password" id="password" placeholder="Mín. 6 caracteres" style="width: 100%; padding: 8px;">
+      </div>
+      <div>
+        <label>Perfil:</label><br>
+        <select id="idPerfil" style="width: 100%; padding: 8px;"></select>
+      </div>
+      <div>
+        <label>Estado:</label><br>
+        <select id="idEstadoUsuario" style="width: 100%; padding: 8px;">
+          <option value="1">Activo</option>
+          <option value="2">Inactivo</option>
+        </select>
+      </div>
+      <div style="grid-column: span 2;">
+        <label>Foto de Perfil:</label><br>
+        <input type="file" id="foto_perfil" accept="image/*" style="padding: 8px;">
+      </div>
+    </div>
+    <br>
+    <button id="btnGuardar" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; cursor: pointer;">Guardar</button>
+    <button id="btnCancelar" style="padding: 8px 15px; background-color: #6c757d; color: white; border: none; cursor: pointer;">Cancelar</button>
+  </div>
+
+  <table border="1" width="100%" style="border-collapse: collapse; text-align: left;">
+    <thead style="background-color: #1a3c5b; color: white;">
+      <tr>
+        <th>Foto</th>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Perfil</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="tablaUsuariosCuerpo"></tbody>
+  </table>
+
+  <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+    <button id="btnAnterior" style="padding: 5px 10px; cursor: pointer;">◀ Anterior</button>
+    <span id="textoPaginacion"></span>
+    <button id="btnSiguiente" style="padding: 5px 10px; cursor: pointer;">Siguiente ▶</button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("turbo:load", function() {
+    let paginaActual = 1;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    const cuerpo = document.getElementById("tablaUsuariosCuerpo");
+    const selectPerfil = document.getElementById("idPerfil");
+    const formulario = document.getElementById("formularioUsuario");
+
+    function cargarUsuarios(pagina) {
+      fetch(`/usuarios.json?page=${pagina}`)
+        .then(res => res.json())
+        .then(data => {
+          cuerpo.innerHTML = "";
+          
+          if(selectPerfil.options.length === 0) {
+            data.perfiles.forEach(p => {
+              let opt = document.createElement("option");
+              opt.value = p.id;
+              opt.text = p.strNombrePerfil;
+              selectPerfil.add(opt);
+            });
+          }
+
+          data.usuarios.forEach(u => {
+            const imgHtml = u.foto_url 
+              ? `<img src="${u.foto_url}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; display:block; margin:auto;">` 
+              : `<div style="width:40px; height:40px; border-radius:50%; background:#ddd; margin:auto;"></div>`;
+
+            const fila = document.createElement("tr");
+            fila.innerHTML = `
+              <td style="padding:5px;">${imgHtml}</td>
+              <td style="padding:10px;">${u.strNombreUsuario}</td>
+              <td style="padding:10px;">${u.strCorreo}</td>
+              <td style="padding:10px;">${u.perfil_nombre}</td>
+              <td style="padding:10px;">${u.idEstadoUsuario == 1 ? '✅ Activo' : '❌ Inactivo'}</td>
+              <td style="padding:10px;">
+                <button onclick="editarUsuario(${u.id}, '${u.strNombreUsuario}', '${u.strCorreo}', '${u.strNumeroCelular}', ${u.idPerfil}, ${u.idEstadoUsuario})" style="cursor:pointer; background:#ffc107; border:none; padding:5px;">Editar</button>
+                <button onclick="eliminarUsuario(${u.id})" style="cursor:pointer; background:#dc3545; color:white; border:none; padding:5px;">Borrar</button>
+              </td>
+            `;
+            cuerpo.appendChild(fila);
+          });
+
+          document.getElementById("textoPaginacion").innerText = `Página ${data.pagina_actual} de ${data.total_paginas || 1}`;
+          document.getElementById("btnAnterior").disabled = data.pagina_actual <= 1;
+          document.getElementById("btnSiguiente").disabled = data.pagina_actual >= (data.total_paginas || 1);
+          paginaActual = data.pagina_actual;
+        });
+    }
+
+    cargarUsuarios(paginaActual);
+
+    document.getElementById("btnNuevo").onclick = () => {
+      document.getElementById("formTitulo").innerText = "Crear Usuario";
+      document.getElementById("usuarioId").value = "";
+      document.getElementById("strNombreUsuario").value = "";
+      document.getElementById("strCorreo").value = "";
+      document.getElementById("strNumeroCelular").value = "";
+      document.getElementById("password").value = "";
+      document.getElementById("foto_perfil").value = "";
+      formulario.style.display = "block";
+    };
+
+    document.getElementById("btnCancelar").onclick = () => formulario.style.display = "none";
+
+    document.getElementById("btnGuardar").onclick = () => {
+      const id = document.getElementById("usuarioId").value;
+      const formData = new FormData();
+      
+      formData.append("usuario[strNombreUsuario]", document.getElementById("strNombreUsuario").value);
+      formData.append("usuario[strCorreo]", document.getElementById("strCorreo").value);
+      formData.append("usuario[strNumeroCelular]", document.getElementById("strNumeroCelular").value);
+      formData.append("usuario[idPerfil]", document.getElementById("idPerfil").value);
+      formData.append("usuario[idEstadoUsuario]", document.getElementById("idEstadoUsuario").value);
+      
+      const pass = document.getElementById("password").value;
+      if (pass) formData.append("usuario[password]", pass);
+      
+      const foto = document.getElementById("foto_perfil").files[0];
+      if (foto) formData.append("usuario[foto_perfil]", foto);
+
+      const url = id ? `/usuarios/${id}.json` : "/usuarios.json";
+      const metodo = id ? "PUT" : "POST";
+
+      fetch(url, {
+        method: metodo,
+        headers: { "X-CSRF-Token": csrfToken },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) {
+          formulario.style.display = "none";
+          cargarUsuarios(paginaActual);
+        } else {
+          alert("Error: " + data.errors.join(", "));
+        }
+      });
+    };
+
+    window.editarUsuario = (id, nom, cor, cel, per, est) => {
+      document.getElementById("formTitulo").innerText = "Editar Usuario";
+      document.getElementById("usuarioId").value = id;
+      document.getElementById("strNombreUsuario").value = nom;
+      document.getElementById("strCorreo").value = cor;
+      document.getElementById("strNumeroCelular").value = cel;
+      document.getElementById("idPerfil").value = per;
+      document.getElementById("idEstadoUsuario").value = est;
+      document.getElementById("password").value = ""; // Opcional al editar
+      formulario.style.display = "block";
+    };
+
+    window.eliminarUsuario = (id) => {
+      if(confirm("¿Seguro que deseas eliminar este usuario?")) {
+        fetch(`/usuarios/${id}.json`, {
+          method: "DELETE",
+          headers: { "X-CSRF-Token": csrfToken }
+        }).then(() => cargarUsuarios(paginaActual));
+      }
+    };
+
+    document.getElementById("btnAnterior").onclick = () => cargarUsuarios(paginaActual - 1);
+    document.getElementById("btnSiguiente").onclick = () => cargarUsuarios(paginaActual + 1);
+  });
+</script>
