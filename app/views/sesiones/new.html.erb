@@ -16,14 +16,34 @@
   <%= form_with url: login_path, method: :post, local: true do |f| %>
     <div style="margin-bottom: 15px;">
       <%= f.label :strCorreo, "Correo Electrónico", style: "display: block; margin-bottom: 5px;" %>
-      <%= f.email_field :strCorreo, placeholder: "ejemplo@sistema.com", required: true, style: "width: 100%; padding: 8px;" %>
+      <%= f.email_field :strCorreo, placeholder: "ejemplo@sistema.com", required: true, style: "width: 100%; padding: 8px; box-sizing: border-box;" %>
     </div>
 
     <div style="margin-bottom: 15px;">
       <%= f.label :password, "Contraseña", style: "display: block; margin-bottom: 5px;" %>
-      <%= f.password_field :password, required: true, style: "width: 100%; padding: 8px;" %>
+      <%= f.password_field :password, required: true, style: "width: 100%; padding: 8px; box-sizing: border-box;" %>
     </div>
 
-    <%= f.submit "Entrar", style: "width: 100%; padding: 10px; background-color: #3498db; color: white; border: none; cursor: pointer; border-radius: 5px;" %>
+    <div style="margin-bottom: 15px; display: flex; justify-content: center;">
+      <%= recaptcha_tags callback: 'captchaCompletado', expired_callback: 'captchaExpirado' %>
+    </div>
+
+    <%= f.submit "Entrar", id: "btn-entrar", disabled: true, style: "width: 100%; padding: 10px; background-color: #3498db; color: white; border: none; cursor: not-allowed; border-radius: 5px; opacity: 0.5; transition: all 0.3s ease;" %>
   <% end %>
 </div>
+
+<script>
+  function captchaCompletado() {
+    var boton = document.getElementById('btn-entrar');
+    boton.disabled = false;            // Habilita el botón
+    boton.style.opacity = '1';         // Le quita la transparencia
+    boton.style.cursor = 'pointer';    // Cambia el cursor a la manita
+  }
+
+  function captchaExpirado() {
+    var boton = document.getElementById('btn-entrar');
+    boton.disabled = true;             // Deshabilita el botón
+    boton.style.opacity = '0.5';       // Lo vuelve transparente
+    boton.style.cursor = 'not-allowed';// Pone el cursor de "prohibido"
+  }
+</script>
