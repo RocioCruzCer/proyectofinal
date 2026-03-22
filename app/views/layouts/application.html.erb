@@ -1,26 +1,125 @@
-<body>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mi Sistema Web</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
     <% if usuario_logueado? %>
-      <nav style="background-color: #f8f9fa; padding: 15px; border-bottom: 1px solid #ddd; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-        
-        <div>
-          <strong>Mi Sistema Web</strong> | 
-          <%= link_to "Dashboard", root_path %>
-        </div>
+      <style>
+        .navbar {
+          background-color: #1a3c5b;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0 20px;
+          font-family: sans-serif;
+          color: white;
+        }
+        .nav-menu {
+          display: flex;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+        }
+        .nav-item {
+          position: relative;
+        }
+        .nav-link {
+          display: block;
+          padding: 15px 20px;
+          color: white;
+          text-decoration: none;
+          cursor: pointer;
+        }
+        .nav-link:hover {
+          background-color: #112a42;
+        }
+        .dropdown {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          background-color: #1a3c5b;
+          min-width: 200px;
+          box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+          z-index: 1000;
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        .dropdown li a {
+          display: block;
+          padding: 12px 20px;
+          color: white;
+          text-decoration: none;
+        }
+        .dropdown li a:hover {
+          background-color: #112a42;
+        }
+        .nav-item:hover .dropdown {
+          display: block;
+        }
+        .user-section {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+        }
+      </style>
 
-        <div style="display: flex; gap: 15px; align-items: center;">
+      <nav class="navbar">
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <%= link_to "Inicio", dashboard_path, class: "nav-link", style: "font-weight: bold;" %>
+          </li>
+
+          <li class="nav-item">
+            <span class="nav-link">Seguridad ▾</span>
+            <ul class="dropdown">
+              <li><a href="#">Perfil</a></li>
+              <li><a href="#">Módulo</a></li>
+              <li><a href="#">Permisos-Perfil</a></li>
+              <li><a href="#">Usuario</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item">
+            <span class="nav-link">Principal 1 ▾</span>
+            <ul class="dropdown">
+              <li><a href="#">Principal 1.1</a></li>
+              <li><a href="#">Principal 1.2</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item">
+            <span class="nav-link">Principal 2 ▾</span>
+            <ul class="dropdown">
+              <li><a href="#">Principal 2.1</a></li>
+              <li><a href="#">Principal 2.2</a></li>
+            </ul>
+          </li>
+        </ul>
+
+        <div class="user-section">
           <span>Hola, <%= usuario_actual.strNombreUsuario %></span>
-          
-          <%= button_to "Cerrar Sesión", logout_path, method: :delete, data: { turbo: false }, style: "padding: 5px 10px; cursor: pointer;" %>
+          <%= button_to "Cerrar Sesión", logout_path, method: :delete, data: { turbo: false }, style: "padding: 5px 10px; cursor: pointer; color: black;" %>
         </div>
-
       </nav>
     <% end %>
 
     <% if flash[:notice] && !current_page?(login_path) %>
-      <div style="background-color: #d4edda; color: #155724; padding: 10px; margin-bottom: 15px;">
+      <div style="background-color: #d4edda; color: #155724; padding: 10px; margin-bottom: 15px; font-family: sans-serif;">
         <%= flash[:notice] %>
       </div>
     <% end %>
 
     <%= yield %>
+    
   </body>
+</html>
