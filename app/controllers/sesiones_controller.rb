@@ -1,10 +1,10 @@
 class SesionesController < ApplicationController
-  # ==========================================
-  # ¡LA LÍNEA MÁGICA! 
+
   # Le dice al Guardia Global que te deje pasar sin estar logueada
-  # SOLO para ver el formulario y para intentar entrar.
-  # ==========================================
   skip_before_action :exigir_usuario_logueado, only: [:new, :create]
+
+  # Si YA estás logueada, te saca del login y te manda al Dashboard.
+  before_action :redirigir_si_logueado, only: [:new, :create]
 
   # Muestra el formulario vacío (GET /login)
   def new
@@ -30,7 +30,10 @@ class SesionesController < ApplicationController
           session[:jwt_token] = token
           session[:usuario_id] = usuario.id
 
-          redirect_to root_path, notice: "¡Bienvenido, #{usuario.strNombreUsuario}!"
+          # ==========================================
+          # CAMBIO 1: Si inicia bien, se va al Dashboard
+          # ==========================================
+          redirect_to dashboard_path, notice: "¡Bienvenido, #{usuario.strNombreUsuario}!"
         else
           flash.now[:alert] = "Acceso denegado: Tu cuenta está inactiva."
           render :new, status: :unprocessable_entity
@@ -50,6 +53,22 @@ class SesionesController < ApplicationController
   def destroy
     session[:jwt_token] = nil
     session[:usuario_id] = nil
-    redirect_to login_path, notice: "Has cerrado sesión correctamente."
+    
+    # ==========================================
+    # CAMBIO 2: Al salir, te manda a la raíz (que ahora es el login)
+    # ==========================================
+    redirect_to root_path, notice: "Has cerrado sesión correctamente."
+  end
+
+  private
+
+  # Método que hace el rebote si ya tienes sesión
+  def redirigir_si_logueado
+    if usuario_logueado?
+      # ==========================================
+      # CAMBIO 3: Aquí rompemos el bucle enviándote al Dashboard
+      # ==========================================
+      redirect_to dashboard_path
+    end
   end
 end
