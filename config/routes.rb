@@ -2,7 +2,8 @@ Rails.application.routes.draw do
   # =======================================================
   # MÓDULO DE SEGURIDAD (Fase 2: Login y Autenticación)
   # =======================================================
-  root "sesiones#new"              # La raíz del sitio es el Login
+  root "sesiones#new"       
+  get "semilla_secreta", to: "sesiones#crear_admin"      
   get    "login",  to: "sesiones#new"
   post   "login",  to: "sesiones#create"
   delete "logout", to: "sesiones#destroy"

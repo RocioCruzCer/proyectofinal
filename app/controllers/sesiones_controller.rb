@@ -42,4 +42,29 @@ class SesionesController < ApplicationController
     session[:usuario_id] = nil
     redirect_to login_path, notice: "Has cerrado sesión correctamente."
   end
+
+  # ==========================================
+  # RUTA TEMPORAL (Borrar después de usar)
+  # ==========================================
+  def crear_admin
+    begin
+      usuario = Usuario.find_or_initialize_by(strCorreo: "admin@sistema.com")
+      usuario.strNombreUsuario = "Admin"
+      usuario.strNumeroCelular = "5551234567"
+      usuario.idPerfil = 1
+      usuario.idEstadoUsuario = 1
+      usuario.password = "Password123!"
+
+      # validate: false fuerza a que se guarde ignorando validaciones de Rails 
+      # (aunque no ignora las de Base de Datos)
+      if usuario.save(validate: false)
+        render plain: "¡ÉXITO! El administrador ya existe en Render. Ya puedes ir a /login"
+      else
+        render plain: "No se pudo crear: #{usuario.errors.full_messages}"
+      end
+    rescue => e
+      # Si la base de datos lo bloquea por llaves foráneas, nos lo dirá aquí
+      render plain: "ERROR CRÍTICO EN BASE DE DATOS: #{e.message}"
+    end
+  end
 end
