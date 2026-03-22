@@ -1,6 +1,12 @@
 class UsuariosController < ApplicationController
-  # Incluimos el helper para generar URLs de las fotos
   include Rails.application.routes.url_helpers
+  
+  # Filtro de seguridad: Verifica si el usuario tiene permiso de consulta para ver la lista
+  before_action -> { validar_acceso("usuario", :bitConsulta) }, only: [:index]
+  # Verifica permisos específicos para acciones de escritura
+  before_action -> { validar_acceso("usuario", :bitAgregar) }, only: [:create]
+  before_action -> { validar_acceso("usuario", :bitEditar) }, only: [:update]
+  before_action -> { validar_acceso("usuario", :bitEliminar) }, only: [:destroy]
 
   def index
     respond_to do |format|
@@ -27,16 +33,24 @@ class UsuariosController < ApplicationController
             idEstadoUsuario: u.idEstadoUsuario,
             perfil_nombre: perfil ? perfil.strNombrePerfil : 'Sin Perfil',
             idPerfil: u.idPerfil,
-            # Generamos la URL de la foto si está adjunta
             foto_url: u.foto_perfil.attached? ? url_for(u.foto_perfil) : nil
           }
         end
+
+        # Aquí enviamos también los permisos que tiene el usuario actual sobre este módulo
+        # para que el JavaScript pueda ocultar o mostrar botones de editar/borrar
+        mis_permisos = PermisosPerfil.find_by(idPerfil: usuario_actual.idPerfil, idModulo: Modulo.find_by(strNombreModulo: "usuario")&.id)
 
         render json: {
           usuarios: usuarios_list,
           perfiles: Perfil.all.select(:id, :strNombrePerfil),
           total_paginas: total_paginas,
-          pagina_actual: page
+          pagina_actual: page,
+          permisos_acciones: {
+            can_edit: mis_permisos&.bitEditar || false,
+            can_delete: mis_permisos&.bitEliminar || false,
+            can_add: mis_permisos&.bitAgregar || false
+          }
         }
       end
     end
@@ -53,12 +67,8 @@ class UsuariosController < ApplicationController
 
   def update
     usuario = Usuario.find(params[:id])
-    
-    # Preparamos los parámetros (evitamos pisar la contraseña si viene vacía)
     params_to_update = usuario_params
-    if params_to_update[:password].blank?
-      params_to_update.delete(:password)
-    end
+    params_to_update.delete(:password) if params_to_update[:password].blank?
 
     if usuario.update(params_to_update)
       render json: { success: true, message: 'Usuario actualizado' }
@@ -69,12 +79,26 @@ class UsuariosController < ApplicationController
 
   def destroy
     Usuario.find(params[:id]).destroy
-    render json: { success: true }
+    render json: { success: true, message: 'Usuario eliminado' }
   end
 
   private
 
   def usuario_params
     params.require(:usuario).permit(:strNombreUsuario, :strCorreo, :strNumeroCelular, :idPerfil, :idEstadoUsuario, :password, :foto_perfil)
+  end
+
+  # Método genérico para validar permisos desde el controlador
+  def validar_acceso(nombre_modulo, tipo_permiso)
+    modulo = Modulo.find_by(strNombreModulo: nombre_modulo)
+    permiso = PermisosPerfil.find_by(idPerfil: usuario_actual.idPerfil, idModulo: modulo&.id)
+
+    # Si no tiene el bit correspondiente activado (ej: bitConsulta, bitEditar)
+    unless permiso&.send(tipo_permiso)
+      respond_to do |format|
+        format.html { redirect_to dashboard_path, alert: "No tienes permiso para esta acción." }
+        format.json { render json: { success: false, errors: ["Acceso denegado"] }, status: :forbidden }
+      end
+    end
   end
 end
