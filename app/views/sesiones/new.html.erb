@@ -1,49 +1,214 @@
-<div style="max-width: 400px; margin: 50px auto; font-family: sans-serif;">
-  <h2>Iniciar Sesión</h2>
+<div class="login-page-wrapper">
   
-  <% if flash[:alert] %>
-    <div style="color: white; background-color: #e74c3c; padding: 10px; margin-bottom: 15px; border-radius: 5px;">
-      <%= flash[:alert] %>
-    </div>
-  <% end %>
-
-  <% if flash[:notice] %>
-    <div style="color: white; background-color: #2ecc71; padding: 10px; margin-bottom: 15px; border-radius: 5px;">
-      <%= flash[:notice] %>
-    </div>
-  <% end %>
-
-  <%= form_with url: login_path, method: :post, local: true do |f| %>
-    <div style="margin-bottom: 15px;">
-      <%= f.label :strCorreo, "Correo Electrónico", style: "display: block; margin-bottom: 5px;" %>
-      <%= f.email_field :strCorreo, placeholder: "ejemplo@sistema.com", required: true, style: "width: 100%; padding: 8px; box-sizing: border-box;" %>
+  <div class="login-card">
+    <div class="login-header">
+      <h2>Iniciar Sesión</h2>
+      <p>Acceso al Panel Administrativo</p>
     </div>
 
-    <div style="margin-bottom: 15px;">
-      <%= f.label :password, "Contraseña", style: "display: block; margin-bottom: 5px;" %>
-      <%= f.password_field :password, required: true, style: "width: 100%; padding: 8px; box-sizing: border-box;" %>
+    <div class="flash-messages">
+      <% if flash[:alert] %>
+        <div class="flash flash-alert">
+          <%= flash[:alert] %>
+        </div>
+      <% end %>
+
+      <% if flash[:notice] %>
+        <div class="flash flash-notice">
+          <%= flash[:notice] %>
+        </div>
+      <% end %>
     </div>
 
-    <div style="margin-bottom: 15px; display: flex; justify-content: center;">
-      <%= recaptcha_tags callback: 'captchaCompletado', expired_callback: 'captchaExpirado' %>
-    </div>
+    <%= form_with url: login_path, method: :post, local: true, class: "login-form" do |f| %>
+      
+      <div class="form-group">
+        <%= f.label :strCorreo, "Correo Electrónico" %>
+        <%= f.email_field :strCorreo, placeholder: "ejemplo@sistema.com", required: true, class: "form-input" %>
+      </div>
 
-    <%= f.submit "Entrar", id: "btn-entrar", disabled: true, style: "width: 100%; padding: 10px; background-color: #3498db; color: white; border: none; cursor: not-allowed; border-radius: 5px; opacity: 0.5; transition: all 0.3s ease;" %>
-  <% end %>
+      <div class="form-group">
+        <%= f.label :password, "Contraseña" %>
+        <%= f.password_field :password, placeholder: "••••••••", required: true, class: "form-input" %>
+      </div>
+
+      <div class="captcha-wrapper">
+        <%= recaptcha_tags callback: 'captchaCompletado', expired_callback: 'captchaExpirado' %>
+      </div>
+
+      <%= f.submit "Entrar al Sistema", id: "btn-entrar", disabled: true, class: "btn-submit" %>
+      
+    <% end %>
+
+    <div class="login-footer">
+      <p>&copy; <%= Time.now.year %> Sistema Corporativo. Todos los derechos reservados.</p>
+    </div>
+  </div>
+
 </div>
+
+<style>
+  /* Variables de Color basadas en tu Paleta Adobe Color */
+  :root {
+    --primary-blue: #1A6D8F;    /* Azul Petróleo */
+    --corporate-green: #2C6E4F; /* Verde Bosque (para éxitos) */
+    --alert-red: #8B3A3A;       /* Rojo Óxido (para errores) */
+    --gold-accent: #D9B650;     /* Dorado (detalles) */
+    --dark-text: #2C3A42;       /* Gris muy oscuro/Azulado */
+    --gray-text: #6F7B85;       /* Gris medio */
+    --bg-light: #F5F7F9;        /* Gris ultra claro (Fondo) */
+    --white: #FFFFFF;
+    --border-color: #E2E6EA;    /* Gris de bordes */
+  }
+
+  /* Estilos de Estructura */
+  .login-page-wrapper {
+    background-color: var(--bg-light);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+
+  .login-card {
+    background-color: var(--white);
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(44, 58, 66, 0.1); /* Sombra basada en #2C3A42 */
+    border-top: 6px solid var(--primary-blue);
+  }
+
+  /* Tipografía */
+  .login-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .login-header h2 {
+    color: var(--dark-text);
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+  }
+
+  .login-header p {
+    color: var(--gray-text);
+    margin: 8px 0 0;
+    font-size: 14px;
+  }
+
+  /* Campos de Formulario */
+  .form-group {
+    margin-bottom: 22px;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--dark-text);
+    margin-bottom: 8px;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    background-color: #FAFAFA;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    background-color: var(--white);
+    box-shadow: 0 0 0 3px rgba(26, 109, 143, 0.1);
+  }
+
+  /* Mensajes de Alerta */
+  .flash {
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    text-align: center;
+    color: var(--white);
+  }
+  .flash-alert { background-color: var(--alert-red); }
+  .flash-notice { background-color: var(--corporate-green); }
+
+  /* Captcha */
+  .captcha-wrapper {
+    margin: 25px 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Botón de Envío */
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: not-allowed;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+  }
+
+  .btn-submit:not([disabled]) {
+    cursor: pointer;
+    opacity: 1;
+  }
+
+  .btn-submit:not([disabled]):hover {
+    background-color: #145672; /* Un tono más oscuro del azul original */
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(26, 109, 143, 0.3);
+  }
+
+  .btn-submit:not([disabled]):active {
+    transform: translateY(0);
+  }
+
+  .login-footer {
+    margin-top: 30px;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+  }
+
+  .login-footer p {
+    font-size: 12px;
+    color: var(--gray-text);
+  }
+</style>
 
 <script>
   function captchaCompletado() {
-    var boton = document.getElementById('btn-entrar');
-    boton.disabled = false;            // Habilita el botón
-    boton.style.opacity = '1';         // Le quita la transparencia
-    boton.style.cursor = 'pointer';    // Cambia el cursor a la manita
+    const boton = document.getElementById('btn-entrar');
+    if (boton) {
+      boton.disabled = false;
+      // No necesitamos cambiar estilos manualmente, el CSS :not([disabled]) se encarga
+    }
   }
 
   function captchaExpirado() {
-    var boton = document.getElementById('btn-entrar');
-    boton.disabled = true;             // Deshabilita el botón
-    boton.style.opacity = '0.5';       // Lo vuelve transparente
-    boton.style.cursor = 'not-allowed';// Pone el cursor de "prohibido"
+    const boton = document.getElementById('btn-entrar');
+    if (boton) {
+      boton.disabled = true;
+    }
   }
 </script>

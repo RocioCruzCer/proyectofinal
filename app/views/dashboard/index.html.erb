@@ -1,5 +1,182 @@
-<div style="padding: 20px; font-family: sans-serif;">
-  <h1>Dashboard Principal</h1>
-  <p>¡Has iniciado sesión con éxito! Esta pantalla está protegida por el guardia global.</p>
-  <p>Desde aquí construiremos el acceso a los módulos de Perfiles, Usuarios y Configuración.</p>
+<div class="dashboard-wrapper">
+  
+  <header class="dashboard-header">
+    <div class="welcome-text">
+      <h1>Dashboard Principal</h1>
+      <p>Bienvenido al centro de control. El acceso está protegido por el sistema de seguridad global.</p>
+    </div>
+    <div class="status-badge">
+      <span class="dot pulse"></span> Sesión Protegida
+    </div>
+  </header>
+
+  <hr class="divider">
+
+  <div class="modules-grid">
+    
+    <div class="module-card">
+      <div class="card-icon" style="background-color: var(--primary-blue);">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+      </div>
+      <h3>Gestión de Perfiles</h3>
+      <p>Configura los roles y niveles de acceso para los diferentes puestos de la organización.</p>
+      <a href="#" class="btn-module">Configurar Perfiles</a>
+    </div>
+
+    <div class="module-card">
+      <div class="card-icon" style="background-color: var(--corporate-green);">
+        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+      </div>
+      <h3>Control de Usuarios</h3>
+      <p>Alta, baja y modificación de cuentas de acceso al sistema corporativo.</p>
+      <a href="#" class="btn-module">Administrar Usuarios</a>
+    </div>
+
+    <div class="module-card">
+      <div class="card-icon" style="background-color: var(--accent-gold);">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </div>
+      <h3>Configuración</h3>
+      <p>Ajustes globales del sistema, logs de auditoría y personalización de la plataforma.</p>
+      <a href="#" class="btn-module">Ver Ajustes</a>
+    </div>
+
+  </div>
 </div>
+
+<style>
+  /* --- ESTILOS DEL DASHBOARD --- */
+  :root {
+    --primary-blue: #1A6D8F;
+    --dark-grey: #2C3A42;
+    --corporate-green: #2C6E4F;
+    --accent-gold: #D9B650;
+    --bg-light: #F5F7F9;
+    --border: #E2E6EA;
+    --text-main: #2C3A42;
+    --text-sub: #6F7B85;
+  }
+
+  .dashboard-wrapper {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+  }
+
+  /* Encabezado */
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 20px;
+  }
+
+  .welcome-text h1 {
+    color: var(--dark-grey);
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  .welcome-text p {
+    color: var(--text-sub);
+    margin: 5px 0 0;
+    font-size: 16px;
+  }
+
+  .status-badge {
+    background: #E8F0F2;
+    color: var(--primary-blue);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(26, 109, 143, 0.2);
+  }
+
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary-blue); }
+  .pulse { animation: pulse-animation 2s infinite; }
+
+  @keyframes pulse-animation {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(26, 109, 143, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(26, 109, 143, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(26, 109, 143, 0); }
+  }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin-bottom: 40px; }
+
+  /* Grid de Tarjetas */
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+  }
+
+  .module-card {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .module-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.05);
+    border-color: var(--primary-blue);
+  }
+
+  .card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .card-icon svg { width: 30px; height: 30px; fill: white; }
+
+  .module-card h3 {
+    margin: 0 0 10px;
+    color: var(--dark-grey);
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .module-card p {
+    color: var(--text-sub);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    flex-grow: 1;
+  }
+
+  /* Botones de Módulo */
+  .btn-module {
+    text-decoration: none;
+    background-color: transparent;
+    border: 1px solid var(--primary-blue);
+    color: var(--primary-blue);
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: all 0.3s;
+  }
+
+  .btn-module:hover {
+    background-color: var(--primary-blue);
+    color: white;
+  }
+</style>
