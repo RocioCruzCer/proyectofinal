@@ -1,0 +1,29 @@
+<div style="max-width: 400px; margin: 50px auto; font-family: sans-serif;">
+  <h2>Iniciar Sesión</h2>
+  
+  <% if flash[:alert] %>
+    <div style="color: white; background-color: #e74c3c; padding: 10px; margin-bottom: 15px; border-radius: 5px;">
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
+
+  <% if flash[:notice] %>
+    <div style="color: white; background-color: #2ecc71; padding: 10px; margin-bottom: 15px; border-radius: 5px;">
+      <%= flash[:notice] %>
+    </div>
+  <% end %>
+
+  <%= form_with url: login_path, method: :post, local: true do |f| %>
+    <div style="margin-bottom: 15px;">
+      <%= f.label :strCorreo, "Correo Electrónico", style: "display: block; margin-bottom: 5px;" %>
+      <%= f.email_field :strCorreo, placeholder: "ejemplo@sistema.com", required: true, style: "width: 100%; padding: 8px;" %>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+      <%= f.label :password, "Contraseña", style: "display: block; margin-bottom: 5px;" %>
+      <%= f.password_field :password, required: true, style: "width: 100%; padding: 8px;" %>
+    </div>
+
+    <%= f.submit "Entrar", style: "width: 100%; padding: 10px; background-color: #3498db; color: white; border: none; cursor: pointer; border-radius: 5px;" %>
+  <% end %>
+</div>
