@@ -1,5 +1,4 @@
 # 1. CREACIÓN DE MÓDULOS BASE
-# Estos nombres deben coincidir EXACTAMENTE con los que usas en el Layout y en 'tiene_permiso?'
 modulos_sistema = [
   'seguridad', 'perfil', 'modulo', 'permisosperfil', 'usuario',
   'principal1', 'principal1_1', 'principal1_2',
@@ -17,9 +16,9 @@ perfil_admin = Perfil.find_or_create_by!(id: 1) do |p|
   p.strNombrePerfil = "Administrador"
 end
 
-# 3. CREACIÓN DEL USUARIO (Tu código original mejorado)
+# 3. CREACIÓN DEL USUARIO
 puts "Sembrando usuario administrador..."
-usuario_admin = Usuario.find_or_create_by!(strCorreo: "admin@sistema.com") do |usuario|
+Usuario.find_or_create_by!(strCorreo: "admin@sistema.com") do |usuario|
   usuario.strNombreUsuario = "Admin"
   usuario.strNumeroCelular = "5551234567"
   usuario.idPerfil = perfil_admin.id
@@ -28,16 +27,19 @@ usuario_admin = Usuario.find_or_create_by!(strCorreo: "admin@sistema.com") do |u
 end
 
 # 4. ASIGNACIÓN DE PERMISOS TOTALES AL PERFIL 1
-# Esto es vital para que al entrar veas todo el menú dinámico
 puts "Asignando permisos totales al perfil Administrador..."
 Modulo.all.each do |mod|
-  PermisosPerfil.find_or_create_by!(idPerfil: perfil_admin.id, idModulo: mod.id) do |permiso|
-    permiso.bitConsulta = true
-    permiso.bitAgregar  = true
-    permiso.bitEditar   = true
-    permiso.bitEliminar = true
-    permiso.bitDetalle  = true
-  end
+  # Buscamos o creamos el registro
+  permiso = PermisosPerfil.find_or_create_by!(idPerfil: perfil_admin.id, idModulo: mod.id)
+  
+  # Usamos update! para FORZAR que se guarden como true, aunque ya existieran en false
+  permiso.update!(
+    bitConsulta: true,
+    bitAgregar:  true,
+    bitEditar:   true,
+    bitEliminar: true,
+    bitDetalle:  true
+  )
 end
 
 puts "¡Sembrado completado con éxito!"
