@@ -1,9 +1,11 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+# find_or_create_by! busca si ya existe el correo. Si no existe, lo crea.
+# Esto evita que se duplique el usuario si ejecutamos esto varias veces.
+Usuario.find_or_create_by!(strCorreo: "admin@sistema.com") do |usuario|
+  usuario.strNombreUsuario = "Admin"
+  usuario.strNumeroCelular = "5551234567"
+  usuario.idPerfil = 1
+  usuario.idEstadoUsuario = 1
+  usuario.password = "Password123!"
+end
+
+puts "¡Usuario administrador sembrado con éxito!"
