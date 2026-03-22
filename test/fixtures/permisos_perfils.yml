@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  idModulo: 1
+  idPerfil: 1
+  bitAgregar: false
+  bitEditar: false
+  bitConsulta: false
+  bitEliminar: false
+  bitDetalle: false
+
+two:
+  idModulo: 1
+  idPerfil: 1
+  bitAgregar: false
+  bitEditar: false
+  bitConsulta: false
+  bitEliminar: false
+  bitDetalle: false

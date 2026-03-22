@@ -1,0 +1,2 @@
+class Modulo < ApplicationRecord
+end

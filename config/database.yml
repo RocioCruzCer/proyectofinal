@@ -1,0 +1,27 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  # Capacidad de conexiones simultáneas
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  # Nombre de la base de datos solicitado para el proyecto local
+  database: proyecto-final-db_development
+  # En WSL, usualmente no necesitas usuario/password si tu usuario de Linux 
+  # coincide con el de Postgres, de lo contrario, descomenta las siguientes líneas:
+  # username: postgres
+  # password: tu_password_de_postgres
+  # host: localhost
+
+test:
+  <<: *default
+  database: proyecto-final-db_test
+
+production:
+  <<: *default
+  # Render inyecta automáticamente la variable DATABASE_URL, 
+  # por lo que Rails ignorará el nombre 'proyectofinal_production'
+  database: proyectofinal_production
+  # Esta configuración permite que Render maneje la conexión dinámicamente
+  url: <%= ENV['DATABASE_URL'] %>
