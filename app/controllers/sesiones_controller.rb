@@ -1,4 +1,11 @@
 class SesionesController < ApplicationController
+  # ==========================================
+  # ¡LA LÍNEA MÁGICA! 
+  # Le dice al Guardia Global que te deje pasar sin estar logueada
+  # SOLO para ver el formulario y para intentar entrar.
+  # ==========================================
+  skip_before_action :exigir_usuario_logueado, only: [:new, :create]
+
   # Muestra el formulario vacío (GET /login)
   def new
   end
