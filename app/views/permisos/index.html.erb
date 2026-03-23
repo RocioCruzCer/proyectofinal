@@ -58,19 +58,45 @@ document.addEventListener("turbo:load", function() {
       .then(res => res.json())
       .then(data => {
         cuerpoMatriz.innerHTML = "";
-        data.forEach(m => {
-          const fila = document.createElement("tr");
-          fila.setAttribute("data-id-modulo", m.idModulo);
-          fila.innerHTML = `
-            <td style="background: #fcfcfc; font-weight: bold; color: #555; border-bottom: 1px solid #eee;">${m.nombreModulo}</td>
-            <td align="center" style="border-bottom: 1px solid #eee;"><input type="checkbox" class="chk-agregar" ${m.bitAgregar ? 'checked' : ''}></td>
-            <td align="center" style="border-bottom: 1px solid #eee;"><input type="checkbox" class="chk-editar" ${m.bitEditar ? 'checked' : ''}></td>
-            <td align="center" style="border-bottom: 1px solid #eee;"><input type="checkbox" class="chk-eliminar" ${m.bitEliminar ? 'checked' : ''}></td>
-            <td align="center" style="border-bottom: 1px solid #eee;"><input type="checkbox" class="chk-consultar" ${m.bitConsulta ? 'checked' : ''}></td>
-            <td align="center" style="border-bottom: 1px solid #eee;"><input type="checkbox" class="chk-detalle" ${m.bitDetalle ? 'checked' : ''}></td>
-          `;
-          cuerpoMatriz.appendChild(fila);
-        });
+        
+        // 'data' ahora es un objeto { "SEGURIDAD": [...], "PRINCIPAL 1": [...] }
+        // Iteramos sobre cada Llave (Título) y su Valor (Arreglo de Módulos)
+        for (const [tituloGrupo, modulos] of Object.entries(data)) {
+          
+          // 1. Dibujamos la fila del separador/título (sin checkboxes)
+          // Solo la dibujamos si el grupo tiene módulos adentro
+          if (modulos.length > 0) {
+            const filaTitulo = document.createElement("tr");
+            filaTitulo.style.backgroundColor = "#e9ecef";
+            filaTitulo.innerHTML = `
+              <td colspan="6" style="font-weight: bold; text-align: left; padding-left: 15px; border-bottom: 2px solid #ccc; text-transform: uppercase;">
+                ${tituloGrupo}
+              </td>
+            `;
+            cuerpoMatriz.appendChild(filaTitulo);
+          }
+
+          // 2. Dibujamos los módulos que pertenecen a ese título (con checkboxes)
+          modulos.forEach(m => {
+            const fila = document.createElement("tr");
+            fila.setAttribute("data-id-modulo", m.idModulo);
+            // Agregamos una clase especial para identificarlas al guardar
+            fila.classList.add("fila-modulo"); 
+            
+            fila.innerHTML = `
+              <td style="background: #fcfcfc; color: #555; border-bottom: 1px solid #eee; padding-left: 30px;">
+                ${m.nombreModulo.charAt(0).toUpperCase() + m.nombreModulo.slice(1)}
+              </td>
+              <td align="center" style="border-bottom: 1px solid #eee;"><input type="checkbox" class="chk-agregar" ${m.bitAgregar ? 'checked' : ''}></td>
+              <td align="center" style="border-bottom: 1px solid #eee;"><input type="checkbox" class="chk-editar" ${m.bitEditar ? 'checked' : ''}></td>
+              <td align="center" style="border-bottom: 1px solid #eee;"><input type="checkbox" class="chk-eliminar" ${m.bitEliminar ? 'checked' : ''}></td>
+              <td align="center" style="border-bottom: 1px solid #eee;"><input type="checkbox" class="chk-consultar" ${m.bitConsulta ? 'checked' : ''}></td>
+              <td align="center" style="border-bottom: 1px solid #eee;"><input type="checkbox" class="chk-detalle" ${m.bitDetalle ? 'checked' : ''}></td>
+            `;
+            cuerpoMatriz.appendChild(fila);
+          });
+        }
+
         contenedor.style.display = "block";
         titulo.style.display = "block";
       });
@@ -78,7 +104,9 @@ document.addEventListener("turbo:load", function() {
 
   // Acción de Guardar Todo
   document.getElementById("btnGuardarMatriz").onclick = () => {
-    const filas = cuerpoMatriz.querySelectorAll("tr");
+    // Solo buscamos las filas que tienen la clase 'fila-modulo' para ignorar los títulos
+    const filas = cuerpoMatriz.querySelectorAll("tr.fila-modulo");
+    
     const listaPermisos = Array.from(filas).map(tr => {
       return {
         idModulo: tr.getAttribute("data-id-modulo"),

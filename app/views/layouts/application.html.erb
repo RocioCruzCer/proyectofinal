@@ -176,7 +176,7 @@
             <%= link_to dashboard_path, class: "nav-link" do %><strong>INICIO</strong><% end %>
           </li>
 
-          <% if tiene_permiso?("seguridad") %>
+          <% if tiene_permiso?("perfil") || tiene_permiso?("modulo") || tiene_permiso?("permisosperfil") || tiene_permiso?("usuario") %>
             <li class="nav-item">
               <span class="nav-link">SEGURIDAD <small style="margin-left:5px">▾</small></span>
               <ul class="dropdown">
@@ -188,7 +188,7 @@
             </li>
           <% end %>
 
-          <% if tiene_permiso?("principal1") %>
+          <% if tiene_permiso?("principal1_1") || tiene_permiso?("principal1_2") %>
             <li class="nav-item">
               <span class="nav-link">PRINCIPAL 1 <small style="margin-left:5px">▾</small></span>
               <ul class="dropdown">
@@ -198,7 +198,7 @@
             </li>
           <% end %>
 
-          <% if tiene_permiso?("principal2") %>
+          <% if tiene_permiso?("principal2_1") || tiene_permiso?("principal2_2") %>
             <li class="nav-item">
               <span class="nav-link">PRINCIPAL 2 <small style="margin-left:5px">▾</small></span>
               <ul class="dropdown">

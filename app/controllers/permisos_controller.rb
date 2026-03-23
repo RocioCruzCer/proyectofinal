@@ -4,17 +4,16 @@ class PermisosController < ApplicationController
     @perfiles = Perfil.all.order(:strNombrePerfil)
   end
 
-  # Acción para obtener todos los módulos y los permisos actuales del perfil
+  # Acción para obtener todos los módulos agrupados y los permisos actuales del perfil
   # GET /permisos/buscar.json?perfil_id=1
   def buscar
     perfil_id = params[:perfil_id]
-    # Traemos TODOS los módulos que existan en la tabla modulos
-    modulos = Modulo.all.order(:id)
     
     # Buscamos qué permisos ya existen para este perfil
     permisos_existentes = PermisosPerfil.where(idPerfil: perfil_id).index_by(&:idModulo)
 
-    matriz = modulos.map do |m|
+    # Función auxiliar (Lambda) para no repetir código. Arma el JSON de cada fila.
+    armar_permiso = ->(m) do
       p = permisos_existentes[m.id]
       {
         idModulo: m.id,
@@ -27,7 +26,21 @@ class PermisosController < ApplicationController
       }
     end
 
-    render json: matriz
+    # Armamos la matriz como un Diccionario (Hash), agrupando por títulos
+    # y excluyendo las palabras padre para que no tengan checkboxes.
+    matriz_agrupada = {
+      "SEGURIDAD" => Modulo.where(strNombreModulo: ['perfil', 'modulo', 'permisosperfil', 'usuario']).map(&armar_permiso),
+      "PRINCIPAL 1" => Modulo.where(strNombreModulo: ['principal1_1', 'principal1_2']).map(&armar_permiso),
+      "PRINCIPAL 2" => Modulo.where(strNombreModulo: ['principal2_1', 'principal2_2']).map(&armar_permiso),
+      "MÓDULOS EXTRA" => Modulo.where.not(strNombreModulo: [
+        'seguridad', 'perfil', 'modulo', 'permisosperfil', 'usuario', 
+        'principal1', 'principal1_1', 'principal1_2', 
+        'principal2', 'principal2_1', 'principal2_2'
+      ]).map(&armar_permiso)
+    }
+
+    # Mandamos el JSON estructurado por grupos
+    render json: matriz_agrupada
   end
 
   # Acción para guardar toda la tabla de una vez
