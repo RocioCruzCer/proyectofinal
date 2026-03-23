@@ -1,9 +1,12 @@
 <div style="font-family: sans-serif; padding: 20px;">
   <h2>Gestión de Módulos</h2>
   
-  <button id="btnNuevo" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; margin-bottom: 15px;">
-    + Nuevo Módulo
-  </button>
+  <%# 1. Restricción a nivel de servidor para el botón Nuevo %>
+  <% if puede_agregar?("modulo") %>
+    <button id="btnNuevo" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; margin-bottom: 15px;">
+      + Nuevo Módulo
+    </button>
+  <% end %>
 
   <div id="formularioModulo" style="display: none; background-color: #f4f4f4; padding: 15px; border: 1px solid #ddd; margin-bottom: 20px;">
     <h3 id="formTitulo">Crear Módulo</h3>
@@ -39,42 +42,55 @@
 <script>
   document.addEventListener("turbo:load", function() {
     let paginaActual = 1;
-
-    // Obtener el Token de Seguridad de Rails
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-    // Elementos del DOM
     const cuerpoTabla = document.getElementById("tablaModulosCuerpo");
     const formulario = document.getElementById("formularioModulo");
     const inputId = document.getElementById("moduloId");
     const inputNombre = document.getElementById("strNombreModulo");
     const tituloForm = document.getElementById("formTitulo");
+    const btnNuevo = document.getElementById("btnNuevo");
 
-    // Función principal: Cargar datos desde el servidor usando Fetch API
     function cargarModulos(pagina) {
-      fetch(`/modulos.json?page=${pagina}`)
+      // Agregamos nocache para evitar datos viejos
+      fetch(`/modulos.json?page=${pagina}&nocache=${Date.now()}`)
         .then(response => response.json())
         .then(data => {
-          cuerpoTabla.innerHTML = ""; // Limpiar tabla
+          cuerpoTabla.innerHTML = ""; 
           
           if(data.modulos.length === 0) {
             cuerpoTabla.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No hay módulos registrados.</td></tr>";
           }
 
+          // 2. MAGIA: Extraer permisos del JSON enviado por el controlador
+          const permisoEditar = data.permisos.editar;
+          const permisoEliminar = data.permisos.eliminar;
+
           data.modulos.forEach(modulo => {
+            let botonesHtml = "";
+            
+            // Solo creamos el botón si el permiso es true
+            if (permisoEditar) {
+              botonesHtml += `<button onclick="editarModulo(${modulo.id}, '${modulo.strNombreModulo}')" style="background-color: #ffc107; border:none; padding:5px; cursor:pointer; margin-right:5px;">Editar</button>`;
+            }
+            
+            if (permisoEliminar) {
+              botonesHtml += `<button onclick="eliminarModulo(${modulo.id})" style="background-color: #dc3545; color:white; border:none; padding:5px; cursor:pointer;">Eliminar</button>`;
+            }
+
+            if (botonesHtml === "") {
+              botonesHtml = "<span style='color: #888;'>Sin acciones</span>";
+            }
+
             const fila = document.createElement("tr");
             fila.innerHTML = `
               <td>${modulo.id}</td>
               <td>${modulo.strNombreModulo}</td>
-              <td>
-                <button onclick="editarModulo(${modulo.id}, '${modulo.strNombreModulo}')" style="background-color: #ffc107; border:none; padding:5px; cursor:pointer;">Editar</button>
-                <button onclick="eliminarModulo(${modulo.id})" style="background-color: #dc3545; color:white; border:none; padding:5px; cursor:pointer;">Eliminar</button>
-              </td>
+              <td>${botonesHtml}</td>
             `;
             cuerpoTabla.appendChild(fila);
           });
 
-          // Actualizar controles de paginación
           document.getElementById("textoPaginacion").innerText = `Página ${data.pagina_actual} de ${data.total_paginas || 1}`;
           document.getElementById("btnAnterior").disabled = data.pagina_actual <= 1;
           document.getElementById("btnSiguiente").disabled = data.pagina_actual >= (data.total_paginas || 1);
@@ -82,26 +98,25 @@
         });
     }
 
-    // Cargar la primera página
     cargarModulos(paginaActual);
 
-    // PAGINACIÓN: Eventos
     document.getElementById("btnAnterior").addEventListener("click", () => cargarModulos(paginaActual - 1));
     document.getElementById("btnSiguiente").addEventListener("click", () => cargarModulos(paginaActual + 1));
 
-    // MOSTRAR/OCULTAR FORMULARIO
-    document.getElementById("btnNuevo").addEventListener("click", () => {
-      tituloForm.innerText = "Crear Módulo";
-      inputId.value = "";
-      inputNombre.value = "";
-      formulario.style.display = "block";
-    });
+    // Solo activamos el evento si el botón existe en el HTML
+    if (btnNuevo) {
+      btnNuevo.addEventListener("click", () => {
+        tituloForm.innerText = "Crear Módulo";
+        inputId.value = "";
+        inputNombre.value = "";
+        formulario.style.display = "block";
+      });
+    }
 
     document.getElementById("btnCancelar").addEventListener("click", () => {
       formulario.style.display = "none";
     });
 
-    // GUARDAR O ACTUALIZAR (Fetch API POST/PUT)
     document.getElementById("btnGuardar").addEventListener("click", () => {
       const nombre = inputNombre.value.trim();
       if (nombre === "") {
@@ -113,11 +128,7 @@
       const metodo = id ? "PUT" : "POST";
       const url = id ? `/modulos/${id}.json` : "/modulos.json";
       
-      const payload = {
-        modulo: {
-          strNombreModulo: nombre
-        }
-      };
+      const payload = { modulo: { strNombreModulo: nombre } };
 
       fetch(url, {
         method: metodo,
@@ -133,13 +144,12 @@
           formulario.style.display = "none";
           cargarModulos(paginaActual);
         } else {
-          alert("Error: " + data.errors.join(", "));
+          alert("Error: " + (data.errors ? data.errors.join(", ") : "Permiso denegado"));
         }
       })
       .catch(error => console.error("Error:", error));
     });
 
-    // EDITAR
     window.editarModulo = function(id, nombre) {
       tituloForm.innerText = "Editar Módulo";
       inputId.value = id;
@@ -147,7 +157,6 @@
       formulario.style.display = "block";
     };
 
-    // ELIMINAR
     window.eliminarModulo = function(id) {
       if (confirm("¿Estás seguro de eliminar este módulo?")) {
         fetch(`/modulos/${id}.json`, {
@@ -162,7 +171,7 @@
           if (data.success) {
             cargarModulos(paginaActual);
           } else {
-            alert("Error al eliminar");
+            alert("Error al eliminar (posible falta de permisos)");
           }
         })
         .catch(error => console.error("Error:", error));

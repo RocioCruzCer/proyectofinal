@@ -10,25 +10,19 @@
     <%= javascript_importmap_tags %>
 
     <style>
-      /* --- VARIABLES DE COLOR (Según tu imagen) --- */
+      /* --- VARIABLES DE COLOR --- */
       :root {
-        --primary-blue: #1A6D8F;    /* Azul Petróleo */
-        --dark-bg: #2C3A42;         /* Gris Azulado Oscuro */
-        --accent-gold: #D9B650;     /* Dorado */
-        --success-green: #2C6E4F;   /* Verde Corporativo */
-        --light-bg: #F5F7F9;        /* Fondo gris suave */
+        --primary-blue: #1A6D8F;
+        --dark-bg: #2C3A42;
+        --accent-gold: #D9B650;
+        --success-green: #2C6E4F;
+        --light-bg: #F5F7F9;
         --white: #FFFFFF;
         --border: #E2E6EA;
       }
 
-      body {
-        margin: 0;
-        padding: 0;
-        background-color: var(--light-bg);
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      }
+      body { margin: 0; padding: 0; background-color: var(--light-bg); font-family: 'Segoe UI', sans-serif; }
 
-      /* --- NAVBAR MODERNA --- */
       .navbar {
         background-color: var(--dark-bg);
         display: flex;
@@ -40,19 +34,8 @@
         border-bottom: 3px solid var(--primary-blue);
       }
 
-      .nav-menu {
-        display: flex;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        height: 100%;
-      }
-
-      .nav-item {
-        position: relative;
-        height: 100%;
-      }
-
+      .nav-menu { display: flex; list-style: none; margin: 0; padding: 0; height: 100%; }
+      .nav-item { position: relative; height: 100%; }
       .nav-link {
         display: flex;
         align-items: center;
@@ -63,15 +46,9 @@
         font-size: 14px;
         font-weight: 500;
         transition: all 0.3s ease;
-        cursor: pointer;
       }
+      .nav-link:hover { background-color: rgba(255,255,255,0.05); color: var(--accent-gold); }
 
-      .nav-link:hover {
-        background-color: rgba(255,255,255,0.05);
-        color: var(--accent-gold);
-      }
-
-      /* --- DROPDOWNS MEJORADOS --- */
       .dropdown {
         display: none;
         position: absolute;
@@ -86,84 +63,22 @@
         margin: 0;
         border-radius: 0 0 4px 4px;
         border: 1px solid var(--border);
-        animation: fadeIn 0.2s ease;
       }
-
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
       .dropdown li a {
         display: block;
         padding: 12px 20px;
         color: var(--dark-bg);
         text-decoration: none;
         font-size: 14px;
-        transition: background 0.2s;
       }
+      .dropdown li a:hover { background-color: var(--light-bg); color: var(--primary-blue); padding-left: 25px; }
+      .nav-item:hover .dropdown { display: block; }
 
-      .dropdown li a:hover {
-        background-color: var(--light-bg);
-        color: var(--primary-blue);
-        padding-left: 25px; /* Efecto de desplazamiento */
-      }
-
-      .nav-item:hover .dropdown {
-        display: block;
-      }
-
-      /* --- SECCIÓN DE USUARIO --- */
-      .user-section {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        color: var(--white);
-        font-size: 14px;
-      }
-
-      .user-name {
-        font-weight: 600;
-        color: var(--accent-gold);
-      }
-
+      .user-section { display: flex; align-items: center; gap: 20px; color: var(--white); font-size: 14px; }
+      .user-name { font-weight: 600; color: var(--accent-gold); }
       .btn-logout {
-        background-color: transparent;
-        border: 1px solid var(--accent-gold);
-        color: var(--accent-gold);
-        padding: 6px 15px;
-        border-radius: 4px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-      }
-
-      .btn-logout:hover {
-        background-color: var(--accent-gold);
-        color: var(--dark-bg);
-      }
-
-      /* --- ALERTAS FLASH --- */
-      .flash-container {
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 0 20px;
-      }
-
-      .flash-banner {
-        padding: 15px 20px;
-        border-radius: 6px;
-        font-size: 14px;
-        border-left: 5px solid;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        margin-bottom: 10px;
-      }
-
-      .notice-banner {
-        background-color: #E8F5E9;
-        color: #2E7D32;
-        border-left-color: var(--success-green);
+        background-color: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold);
+        padding: 6px 15px; border-radius: 4px; font-weight: 600; cursor: pointer;
       }
     </style>
   </head>
@@ -176,44 +91,51 @@
             <%= link_to dashboard_path, class: "nav-link" do %><strong>INICIO</strong><% end %>
           </li>
 
-          <% if tiene_permiso?("perfil") || tiene_permiso?("modulo") || tiene_permiso?("permisosperfil") || tiene_permiso?("usuario") %>
+          <%# --- MENÚ SEGURIDAD --- %>
+          <% if puede_consultar?("perfil") || puede_consultar?("modulo") || puede_consultar?("permisosperfil") || puede_consultar?("usuario") || puede_consultar?("Seguridad") %>
             <li class="nav-item">
               <span class="nav-link">SEGURIDAD <small style="margin-left:5px">▾</small></span>
               <ul class="dropdown">
-                <% if tiene_permiso?("perfil") %><li><%= link_to "Perfil", perfiles_path %></li><% end %>
-                <% if tiene_permiso?("modulo") %><li><%= link_to "Módulo", modulos_path %></li><% end %>
-                <% if tiene_permiso?("permisosperfil") %><li><%= link_to "Permisos - Perfil", permisos_path %></li><% end %>
-                <% if tiene_permiso?("usuario") %><li><%= link_to "Usuario", usuarios_path %></li><% end %>
+                <% if puede_consultar?("perfil") %><li><%= link_to "Perfil", perfiles_path %></li><% end %>
+                <% if puede_consultar?("modulo") %><li><%= link_to "Módulo", modulos_path %></li><% end %>
+                <% if puede_consultar?("permisosperfil") %><li><%= link_to "Permisos - Perfil", permisos_path %></li><% end %>
+                <% if puede_consultar?("usuario") %><li><%= link_to "Usuario", usuarios_path %></li><% end %>
               </ul>
             </li>
           <% end %>
 
-          <% if tiene_permiso?("principal1_1") || tiene_permiso?("principal1_2") %>
+          <%# --- PRINCIPAL 1 --- %>
+          <% if puede_consultar?("principal1_1") || puede_consultar?("principal1_2") %>
             <li class="nav-item">
               <span class="nav-link">PRINCIPAL 1 <small style="margin-left:5px">▾</small></span>
               <ul class="dropdown">
-                <% if tiene_permiso?("principal1_1") %><li><a href="#">Principal 1.1</a></li><% end %>
-                <% if tiene_permiso?("principal1_2") %><li><a href="#">Principal 1.2</a></li><% end %>
+                <% if puede_consultar?("principal1_1") %><li><a href="#">Principal 1.1</a></li><% end %>
+                <% if puede_consultar?("principal1_2") %><li><a href="#">Principal 1.2</a></li><% end %>
               </ul>
             </li>
           <% end %>
 
-          <% if tiene_permiso?("principal2_1") || tiene_permiso?("principal2_2") %>
+          <%# --- PRINCIPAL 2 (RESTABLECIDO) --- %>
+          <% if puede_consultar?("principal2_1") || puede_consultar?("principal2_2") %>
             <li class="nav-item">
               <span class="nav-link">PRINCIPAL 2 <small style="margin-left:5px">▾</small></span>
               <ul class="dropdown">
-                <% if tiene_permiso?("principal2_1") %><li><a href="#">Principal 2.1</a></li><% end %>
-                <% if tiene_permiso?("principal2_2") %><li><a href="#">Principal 2.2</a></li><% end %>
+                <% if puede_consultar?("principal2_1") %><li><a href="#">Principal 2.1</a></li><% end %>
+                <% if puede_consultar?("principal2_2") %><li><a href="#">Principal 2.2</a></li><% end %>
               </ul>
             </li>
           <% end %>
 
+          <%# --- OTROS MÓDULOS (DINÁMICO) --- %>
           <li class="nav-item">
             <span class="nav-link">MÓDULOS <small style="margin-left:5px">▾</small></span>
             <ul class="dropdown">
-              <% excluidos = ['seguridad', 'perfil', 'modulo', 'permisosperfil', 'usuario', 'principal1', 'principal1_1', 'principal1_2', 'principal2', 'principal2_1', 'principal2_2'] %>
+              <%# Excluimos solo lo que ya dibujamos arriba para no repetir %>
+              <% excluidos = ['Seguridad', 'perfil', 'modulo', 'permisosperfil', 'usuario', 
+                             'principal1_1', 'principal1_2', 'principal2_1', 'principal2_2'] %>
+              
               <% Modulo.where.not(strNombreModulo: excluidos).each do |m| %>
-                <% if tiene_permiso?(m.strNombreModulo) %>
+                <% if puede_consultar?(m.strNombreModulo) %>
                   <li><%= link_to m.strNombreModulo.titleize, "#" %></li>
                 <% end %>
               <% end %>
@@ -227,15 +149,6 @@
         </div>
       </nav>
     <% end %>
-
-    <div class="flash-container">
-      <% if flash[:notice] && !current_page?(login_path) %>
-        <div class="flash-banner notice-banner"><%= flash[:notice] %></div>
-      <% end %>
-      <% if flash[:alert] %>
-        <div class="flash-banner" style="background-color: #FFEBEE; color: #C62828; border-left-color: #D32F2F;"><%= flash[:alert] %></div>
-      <% end %>
-    </div>
 
     <main style="padding: 20px;">
       <%= yield %>
