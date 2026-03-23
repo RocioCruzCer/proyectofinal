@@ -49,11 +49,6 @@
     // Obtener el Token de Seguridad de Rails para poder enviar datos
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-    // === INYECCIÓN DE PERMISOS ===
-    // Ruby le pasa los permisos a JavaScript al momento de cargar la página
-    const permisoEditar = <%= puede_editar?("perfil") ? 'true' : 'false' %>;
-    const permisoEliminar = <%= puede_eliminar?("perfil") ? 'true' : 'false' %>;
-
     // Elementos del DOM
     const cuerpoTabla = document.getElementById("tablaPerfilesCuerpo");
     const formulario = document.getElementById("formularioPerfil");
@@ -65,7 +60,8 @@
 
     // Función principal: Cargar datos desde el servidor usando Fetch API
     function cargarPerfiles(pagina) {
-      fetch(`/perfiles.json?page=${pagina}`)
+      // 1. Truco Date.now() para que nunca use caché y siempre pida datos frescos
+      fetch(`/perfiles.json?page=${pagina}&nocache=${Date.now()}`)
         .then(response => response.json())
         .then(data => {
           cuerpoTabla.innerHTML = ""; // Limpiar tabla
@@ -74,8 +70,12 @@
             cuerpoTabla.innerHTML = "<tr><td colspan='4' style='text-align:center;'>No hay perfiles registrados.</td></tr>";
           }
 
+          // 2. MAGIA: Tomamos los permisos que nos mandó el PerfilesController
+          const permisoEditar = data.permisos.editar;
+          const permisoEliminar = data.permisos.eliminar;
+
           data.perfiles.forEach(perfil => {
-            // Evaluamos qué botones de acción dibujar según los permisos
+            // Evaluamos qué botones de acción dibujar según los permisos frescos
             let botonesHtml = "";
             
             if (permisoEditar) {
@@ -86,7 +86,7 @@
               botonesHtml += `<button onclick="eliminarPerfil(${perfil.id})" style="background-color: #dc3545; color:white; border:none; padding:5px; cursor:pointer;">Eliminar</button>`;
             }
 
-            // Si no tiene ningún permiso, mostramos un guion o texto vacío
+            // Si no tiene ningún permiso, mostramos un texto
             if (botonesHtml === "") {
               botonesHtml = "<span style='color: #888;'>Sin acciones permitidas</span>";
             }
@@ -117,7 +117,7 @@
     document.getElementById("btnSiguiente").addEventListener("click", () => cargarPerfiles(paginaActual + 1));
 
     // MOSTRAR/OCULTAR FORMULARIO
-    // Solo agregamos el evento si el botón existe (es decir, si tiene permiso)
+    // Solo agregamos el evento si el botón existe (es decir, si tiene permiso de Agregar)
     if (btnNuevo) {
       btnNuevo.addEventListener("click", () => {
         tituloForm.innerText = "Crear Perfil";

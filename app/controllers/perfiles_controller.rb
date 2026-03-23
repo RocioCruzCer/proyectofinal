@@ -20,7 +20,12 @@ class PerfilesController < ApplicationController
         render json: {
           perfiles: perfiles,
           total_paginas: total_paginas,
-          pagina_actual: page
+          pagina_actual: page,
+          # 👇 AQUÍ ESTÁ LA MAGIA: Mandamos los permisos frescos en cada petición
+          permisos: {
+            editar: view_context.puede_editar?("perfil"),
+            eliminar: view_context.puede_eliminar?("perfil")
+          }
         }
       end
     end
