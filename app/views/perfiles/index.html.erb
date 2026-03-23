@@ -1,9 +1,11 @@
 <div style="font-family: sans-serif; padding: 20px;">
   <h2>Gestión de Perfiles</h2>
   
-  <button id="btnNuevo" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; margin-bottom: 15px;">
-    + Nuevo Perfil
-  </button>
+  <% if puede_agregar?("perfil") %>
+    <button id="btnNuevo" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; margin-bottom: 15px;">
+      + Nuevo Perfil
+    </button>
+  <% end %>
 
   <div id="formularioPerfil" style="display: none; background-color: #f4f4f4; padding: 15px; border: 1px solid #ddd; margin-bottom: 20px;">
     <h3 id="formTitulo">Crear Perfil</h3>
@@ -47,6 +49,11 @@
     // Obtener el Token de Seguridad de Rails para poder enviar datos
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
+    // === INYECCIÓN DE PERMISOS ===
+    // Ruby le pasa los permisos a JavaScript al momento de cargar la página
+    const permisoEditar = <%= puede_editar?("perfil") ? 'true' : 'false' %>;
+    const permisoEliminar = <%= puede_eliminar?("perfil") ? 'true' : 'false' %>;
+
     // Elementos del DOM
     const cuerpoTabla = document.getElementById("tablaPerfilesCuerpo");
     const formulario = document.getElementById("formularioPerfil");
@@ -54,6 +61,7 @@
     const inputNombre = document.getElementById("strNombrePerfil");
     const inputAdmin = document.getElementById("bitAdministrador");
     const tituloForm = document.getElementById("formTitulo");
+    const btnNuevo = document.getElementById("btnNuevo");
 
     // Función principal: Cargar datos desde el servidor usando Fetch API
     function cargarPerfiles(pagina) {
@@ -67,15 +75,28 @@
           }
 
           data.perfiles.forEach(perfil => {
+            // Evaluamos qué botones de acción dibujar según los permisos
+            let botonesHtml = "";
+            
+            if (permisoEditar) {
+              botonesHtml += `<button onclick="editarPerfil(${perfil.id}, '${perfil.strNombrePerfil}', ${perfil.bitAdministrador})" style="background-color: #ffc107; border:none; padding:5px; cursor:pointer; margin-right:5px;">Editar</button>`;
+            }
+            
+            if (permisoEliminar) {
+              botonesHtml += `<button onclick="eliminarPerfil(${perfil.id})" style="background-color: #dc3545; color:white; border:none; padding:5px; cursor:pointer;">Eliminar</button>`;
+            }
+
+            // Si no tiene ningún permiso, mostramos un guion o texto vacío
+            if (botonesHtml === "") {
+              botonesHtml = "<span style='color: #888;'>Sin acciones permitidas</span>";
+            }
+
             const fila = document.createElement("tr");
             fila.innerHTML = `
               <td>${perfil.id}</td>
               <td>${perfil.strNombrePerfil}</td>
               <td>${perfil.bitAdministrador ? "Sí" : "No"}</td>
-              <td>
-                <button onclick="editarPerfil(${perfil.id}, '${perfil.strNombrePerfil}', ${perfil.bitAdministrador})" style="background-color: #ffc107; border:none; padding:5px; cursor:pointer;">Editar</button>
-                <button onclick="eliminarPerfil(${perfil.id})" style="background-color: #dc3545; color:white; border:none; padding:5px; cursor:pointer;">Eliminar</button>
-              </td>
+              <td>${botonesHtml}</td>
             `;
             cuerpoTabla.appendChild(fila);
           });
@@ -96,13 +117,16 @@
     document.getElementById("btnSiguiente").addEventListener("click", () => cargarPerfiles(paginaActual + 1));
 
     // MOSTRAR/OCULTAR FORMULARIO
-    document.getElementById("btnNuevo").addEventListener("click", () => {
-      tituloForm.innerText = "Crear Perfil";
-      inputId.value = "";
-      inputNombre.value = "";
-      inputAdmin.checked = false;
-      formulario.style.display = "block";
-    });
+    // Solo agregamos el evento si el botón existe (es decir, si tiene permiso)
+    if (btnNuevo) {
+      btnNuevo.addEventListener("click", () => {
+        tituloForm.innerText = "Crear Perfil";
+        inputId.value = "";
+        inputNombre.value = "";
+        inputAdmin.checked = false;
+        formulario.style.display = "block";
+      });
+    }
 
     document.getElementById("btnCancelar").addEventListener("click", () => {
       formulario.style.display = "none";
