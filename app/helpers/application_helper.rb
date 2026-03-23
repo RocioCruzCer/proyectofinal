@@ -1,33 +1,38 @@
 module ApplicationHelper
-  # 1. Función base para encontrar el permiso sin repetir código
+  # 1. Función base blindada
   def permiso_para(nombre_modulo)
     return nil unless usuario_logueado?
-    modulo = Modulo.where("LOWER(TRIM(strNombreModulo)) = ?", nombre_modulo.downcase.strip).first
+    return nil if nombre_modulo.blank? # <-- PROTECCIÓN: Si llega vacío o nil, se detiene aquí
+
+    # Convertimos a texto de forma segura antes de limpiar espacios y mayúsculas
+    nombre_limpio = nombre_modulo.to_s.downcase.strip
+    modulo = Modulo.where("LOWER(TRIM(strNombreModulo)) = ?", nombre_limpio).first
+    
     return nil unless modulo
     PermisosPerfil.find_by(idPerfil: usuario_actual.idPerfil, idModulo: modulo.id)
   end
 
-  # 2. Revisa la palomita de "Consultar" (Para ver menús y listas)
+  # 2. Revisa Consultar (menús)
   def tiene_permiso?(nombre_modulo)
     permiso = permiso_para(nombre_modulo)
-    permiso ? permiso.bitConsulta : false
+    permiso&.bitConsulta == true # <-- Usamos el operador seguro &
   end
 
-  # 3. Revisa la palomita de "Agregar"
+  # 3. Revisa Agregar
   def puede_agregar?(nombre_modulo)
     permiso = permiso_para(nombre_modulo)
-    permiso ? permiso.bitAgregar : false
+    permiso&.bitAgregar == true
   end
 
-  # 4. Revisa la palomita de "Editar"
+  # 4. Revisa Editar
   def puede_editar?(nombre_modulo)
     permiso = permiso_para(nombre_modulo)
-    permiso ? permiso.bitEditar : false
+    permiso&.bitEditar == true
   end
 
-  # 5. Revisa la palomita de "Eliminar"
+  # 5. Revisa Eliminar
   def puede_eliminar?(nombre_modulo)
     permiso = permiso_para(nombre_modulo)
-    permiso ? permiso.bitEliminar : false
+    permiso&.bitEliminar == true
   end
 end
