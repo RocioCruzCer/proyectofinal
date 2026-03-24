@@ -115,8 +115,8 @@
             </li>
           <% end %>
 
-          <%# --- PRINCIPAL 2 (RESTABLECIDO) --- %>
-          <% if puede_consultar?("principal2_1") || puede_consultar?("principal2_2") %>
+          <%# --- PRINCIPAL 2 --- %>
+          <% if puede_consultar?("principal2") || puede_consultar?("principal2_1") || puede_consultar?("principal2_2") %>
             <li class="nav-item">
               <span class="nav-link">PRINCIPAL 2 <small style="margin-left:5px">▾</small></span>
               <ul class="dropdown">
@@ -130,13 +130,20 @@
           <li class="nav-item">
             <span class="nav-link">MÓDULOS <small style="margin-left:5px">▾</small></span>
             <ul class="dropdown">
-              <%# Excluimos solo lo que ya dibujamos arriba para no repetir %>
-              <% excluidos = ['Seguridad', 'perfil', 'modulo', 'permisosperfil', 'usuario', 
-                             'principal1_1', 'principal1_2', 'principal2_1', 'principal2_2'] %>
+              <%# 1. Definimos los excluidos en minúsculas para una comparación a prueba de fallos %>
+              <% excluidos = ['seguridad', 'perfil', 'modulo', 'permisosperfil', 'usuario', 
+                             'principal1', 'principal1_1', 'principal1_2', 
+                             'principal2', 'principal2_1', 'principal2_2'] %>
               
-              <% Modulo.where.not(strNombreModulo: excluidos).each do |m| %>
-                <% if puede_consultar?(m.strNombreModulo) %>
-                  <li><%= link_to m.strNombreModulo.titleize, "#" %></li>
+              <%# 2. Recorremos todos los módulos y filtramos manualmente %>
+              <% Modulo.all.each do |m| %>
+                <%# Comparamos ignorando mayúsculas y espacios (Falla común en el Host) %>
+                <% nombre_formateado = m.strNombreModulo.to_s.downcase.strip %>
+                
+                <% unless excluidos.include?(nombre_formateado) %>
+                  <% if puede_consultar?(m.strNombreModulo) %>
+                    <li><%= link_to m.strNombreModulo.titleize, "#" %></li>
+                  <% end %>
                 <% end %>
               <% end %>
             </ul>
