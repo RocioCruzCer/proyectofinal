@@ -14,13 +14,33 @@ class UsuariosController < ApplicationController
         page = (params[:page] || 1).to_i
         per_page = 5
         
-        total_registros = Usuario.count
-        total_paginas = (total_registros.to_f / per_page).ceil
+        # 1. Iniciamos la consulta base (sin las fotos para evitar el error 500 al contar)
+        query = Usuario.all
         
-        usuarios_db = Usuario.with_attached_foto_perfil
-                             .order(id: :desc)
-                             .limit(per_page)
-                             .offset((page - 1) * per_page)
+        # 2. Aplicamos filtros dinámicos si vienen en la URL
+        if params[:usuario].present?
+          # En PostgreSQL, las columnas con mayúsculas DEBEN ir entre comillas dobles ("")
+          # Usamos ILIKE para que la búsqueda ignore mayúsculas/minúsculas de forma nativa
+          query = query.where('"strNombreUsuario" ILIKE ?', "%#{params[:usuario]}%")
+        end
+        
+        if params[:perfil].present?
+          query = query.where(idPerfil: params[:perfil])
+        end
+        
+        if params[:estado].present?
+          query = query.where(idEstadoUsuario: params[:estado])
+        end
+
+        # 3. Calculamos totales (ahora .count funcionará perfecto)
+        total_registros = query.count
+        total_paginas = total_registros > 0 ? (total_registros.to_f / per_page).ceil : 1
+        
+        # 4. Paginamos la consulta final y AHORA SÍ cargamos las fotos
+        usuarios_db = query.with_attached_foto_perfil
+                           .order(id: :desc)
+                           .limit(per_page)
+                           .offset((page - 1) * per_page)
 
         usuarios_list = usuarios_db.map do |u|
           perfil = Perfil.find_by(id: u.idPerfil)
@@ -41,7 +61,7 @@ class UsuariosController < ApplicationController
           perfiles: Perfil.all.select(:id, :strNombrePerfil),
           total_paginas: total_paginas,
           pagina_actual: page,
-          # 👇 UNIFICADO: Usamos view_context para enviar los permisos seguros
+          # Usamos view_context para enviar los permisos seguros a JavaScript
           permisos: {
             editar: view_context.puede_editar?("usuario"),
             eliminar: view_context.puede_eliminar?("usuario")

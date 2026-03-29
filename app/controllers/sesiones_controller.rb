@@ -14,8 +14,8 @@ class SesionesController < ApplicationController
   def create
     # 1. VALIDACIÓN DEL RECAPTCHA (Seguridad de Google)
     if verify_recaptcha
-      # 2. BÚSQUEDA DEL USUARIO
-      usuario = Usuario.find_by(strCorreo: params[:strCorreo])
+      # 2. BÚSQUEDA DEL USUARIO (Ahora por Nombre de Usuario)
+      usuario = Usuario.find_by(strNombreUsuario: params[:strNombreUsuario])
 
       # 3. VALIDACIÓN DE CREDENCIALES (Bcrypt)
       if usuario && usuario.authenticate(params[:password])
@@ -39,7 +39,8 @@ class SesionesController < ApplicationController
           render :new, status: :unprocessable_entity
         end
       else
-        flash.now[:alert] = "Correo o contraseña incorrectos."
+        # Actualizamos el mensaje de error para que no diga "Correo"
+        flash.now[:alert] = "Usuario o contraseña incorrectos."
         render :new, status: :unprocessable_entity
       end
     else

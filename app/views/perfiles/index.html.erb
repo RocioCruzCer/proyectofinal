@@ -1,138 +1,726 @@
-<div style="font-family: sans-serif; padding: 20px;">
-  <h2>Gestión de Perfiles</h2>
+<div class="perfiles-wrapper">
   
+  <!-- Cabecera -->
+  <div class="perfiles-header">
+    <h1>Gestión de Perfiles</h1>
+    <p>Administra los roles y niveles de acceso del sistema</p>
+  </div>
+
+  <!-- Botón Nuevo Perfil -->
   <% if puede_agregar?("perfil") %>
-    <button id="btnNuevo" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; margin-bottom: 15px;">
-      + Nuevo Perfil
-    </button>
+    <div class="action-bar">
+      <button id="btnNuevo" class="btn-new">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Nuevo Perfil
+      </button>
+    </div>
   <% end %>
 
-  <div id="formularioPerfil" style="display: none; background-color: #f4f4f4; padding: 15px; border: 1px solid #ddd; margin-bottom: 20px;">
-    <h3 id="formTitulo">Crear Perfil</h3>
-    <input type="hidden" id="perfilId">
-    
-    <label>Nombre del Perfil:</label><br>
-    <input type="text" id="strNombrePerfil" style="width: 100%; padding: 8px; margin-bottom: 10px;" required>
-    
-    <label>
-      <input type="checkbox" id="bitAdministrador"> Es Administrador
-    </label><br><br>
-
-    <button id="btnGuardar" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; cursor: pointer;">Guardar</button>
-    <button id="btnCancelar" style="padding: 8px 15px; background-color: #6c757d; color: white; border: none; cursor: pointer;">Cancelar</button>
+  <!-- Tabla de perfiles -->
+  <div class="table-container">
+    <table class="perfiles-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre del Perfil</th>
+          <th>Administrador</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tablaPerfilesCuerpo">
+      </tbody>
+    </table>
   </div>
 
-  <table border="1" width="100%" cellspacing="0" cellpadding="10" style="text-align: left; border-collapse: collapse;">
-    <thead style="background-color: #1a3c5b; color: white;">
-      <tr>
-        <th>ID</th>
-        <th>Nombre del Perfil</th>
-        <th>Administrador</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody id="tablaPerfilesCuerpo">
-      </tbody>
-  </table>
-
-  <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
-    <button id="btnAnterior" style="padding: 5px 10px; cursor: pointer;">◀ Anterior</button>
-    <span id="textoPaginacion">Página 1</span>
-    <button id="btnSiguiente" style="padding: 5px 10px; cursor: pointer;">Siguiente ▶</button>
+  <!-- Paginación -->
+  <div class="pagination-container">
+    <button id="btnAnterior" class="pagination-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+      Anterior
+    </button>
+    <span id="textoPaginacion" class="pagination-info">Página 1</span>
+    <button id="btnSiguiente" class="pagination-btn">
+      Siguiente
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </button>
   </div>
 </div>
+
+<!-- Modal flotante para el formulario -->
+<div id="modalPerfil" class="modal-overlay">
+  <div class="modal-container">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="formTitulo">Crear Nuevo Perfil</h3>
+        <button id="btnCerrarModal" class="modal-close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <input type="hidden" id="perfilId">
+        
+        <div class="form-group">
+          <label>Nombre del Perfil</label>
+          <input type="text" id="strNombrePerfil" placeholder="Ej: Administrador, Editor, Consultor" required>
+        </div>
+        
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="bitAdministrador">
+            <span class="checkbox-custom"></span>
+            <span>Es Administrador</span>
+          </label>
+          <p class="checkbox-hint">Los administradores tienen acceso total al sistema</p>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button id="btnGuardar" class="btn-primary">Guardar Perfil</button>
+        <button id="btnCancelarModal" class="btn-secondary">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Variables de color */
+  :root {
+    --primary: #246BD1;
+    --primary-dark: #1A4F9C;
+    --secondary: #7C8EF8;
+    --accent: #F3B0B8;
+    --success: #02900E;
+    --success-light: #95BFA1;
+    --gray-bg: #C2C7CC;
+    --gray-light: #F8F9FC;
+    --gray-medium: #6C757D;
+    --gray-dark: #2C3E50;
+    --white: #FFFFFF;
+    --border: #E9ECEF;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-modal: 0 25px 50px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Tipografías */
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+  .perfiles-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  /* Cabecera */
+  .perfiles-header {
+    margin-bottom: 32px;
+  }
+
+  .perfiles-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    color: var(--gray-dark);
+    margin: 0 0 8px 0;
+  }
+
+  .perfiles-header p {
+    font-size: 14px;
+    color: var(--gray-medium);
+    margin: 0;
+  }
+
+  /* Action Bar */
+  .action-bar {
+    margin-bottom: 24px;
+  }
+
+  .btn-new {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+  }
+
+  .btn-new:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  /* Tabla */
+  .table-container {
+    background: var(--white);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+    margin-bottom: 24px;
+  }
+
+  .perfiles-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .perfiles-table thead {
+    background: linear-gradient(135deg, var(--gray-dark) 0%, #1F2A33 100%);
+  }
+
+  .perfiles-table th {
+    padding: 16px 20px;
+    text-align: left;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  .perfiles-table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--gray-dark);
+  }
+
+  .perfiles-table tbody tr:hover {
+    background: var(--gray-light);
+  }
+
+  .perfiles-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* Badges */
+  .badge-admin {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(36, 107, 209, 0.1);
+    color: var(--primary);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge-user {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--gray-light);
+    color: var(--gray-medium);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* Botones de acción */
+  .btn-action {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    margin-right: 8px;
+  }
+
+  .btn-edit {
+    background: rgba(124, 142, 248, 0.1);
+    color: var(--secondary);
+  }
+
+  .btn-edit:hover {
+    background: var(--secondary);
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .btn-delete {
+    background: rgba(243, 176, 184, 0.1);
+    color: var(--accent);
+  }
+
+  .btn-delete:hover {
+    background: var(--accent);
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .no-actions {
+    color: var(--gray-medium);
+    font-size: 12px;
+  }
+
+  /* Paginación */
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-dark);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .pagination-btn:hover:not(:disabled) {
+    background: var(--gray-light);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pagination-info {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-dark);
+  }
+
+  /* Mensaje vacío */
+  .empty-row td {
+    text-align: center;
+    padding: 40px !important;
+    color: var(--gray-medium);
+  }
+
+  /* ============================================
+     MODAL FLOTANTE
+  ============================================ */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      backdrop-filter: blur(0);
+    }
+    to {
+      opacity: 1;
+      backdrop-filter: blur(8px);
+    }
+  }
+
+  .modal-container {
+    animation: modalSlideUp 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+  }
+
+  @keyframes modalSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .modal-card {
+    background: var(--white);
+    border-radius: 28px;
+    width: 500px;
+    max-width: 90vw;
+    overflow: hidden;
+    box-shadow: var(--shadow-modal);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, var(--gray-light) 0%, #FFFFFF 100%);
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    color: var(--gray-dark);
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: var(--gray-medium);
+  }
+
+  .modal-close:hover {
+    background: var(--gray-light);
+    color: var(--primary);
+    transform: rotate(90deg);
+  }
+
+  .modal-body {
+    padding: 28px;
+  }
+
+  .form-group {
+    margin-bottom: 24px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-dark);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-group input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.2s;
+    background: var(--gray-light);
+  }
+
+  .form-group input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(36, 107, 209, 0.08);
+  }
+
+  .checkbox-group {
+    margin-bottom: 0;
+  }
+
+  .checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .checkbox-label input {
+    display: none;
+  }
+
+  .checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    display: inline-block;
+    position: relative;
+    transition: all 0.2s;
+  }
+
+  .checkbox-label input:checked + .checkbox-custom {
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .checkbox-label input:checked + .checkbox-custom::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+  }
+
+  .checkbox-label span:last-child {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-dark);
+  }
+
+  .checkbox-hint {
+    font-size: 12px;
+    color: var(--gray-medium);
+    margin: 8px 0 0 30px;
+  }
+
+  .modal-footer {
+    padding: 20px 28px 28px;
+    display: flex;
+    gap: 12px;
+    border-top: 1px solid var(--border);
+    background: var(--gray-light);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(36, 107, 209, 0.3);
+  }
+
+  .btn-secondary {
+    background: var(--gray-light);
+    color: var(--gray-medium);
+    border: 1px solid var(--border);
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+  }
+
+  .btn-secondary:hover {
+    background: var(--border);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .perfiles-wrapper {
+      padding: 20px;
+    }
+
+    .perfiles-table th,
+    .perfiles-table td {
+      padding: 12px 16px;
+    }
+
+    .btn-action {
+      padding: 4px 10px;
+      font-size: 11px;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .modal-footer {
+      flex-direction: column;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .perfiles-wrapper {
+      padding: 16px;
+    }
+
+    .perfiles-header h1 {
+      font-size: 24px;
+    }
+
+    .btn-new {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+    }
+
+    .modal-header h3 {
+      font-size: 18px;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+  }
+</style>
 
 <script>
   document.addEventListener("turbo:load", function() {
     let paginaActual = 1;
-
-    // Obtener el Token de Seguridad de Rails para poder enviar datos
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-    // Elementos del DOM
     const cuerpoTabla = document.getElementById("tablaPerfilesCuerpo");
-    const formulario = document.getElementById("formularioPerfil");
+    const modal = document.getElementById("modalPerfil");
     const inputId = document.getElementById("perfilId");
     const inputNombre = document.getElementById("strNombrePerfil");
     const inputAdmin = document.getElementById("bitAdministrador");
     const tituloForm = document.getElementById("formTitulo");
     const btnNuevo = document.getElementById("btnNuevo");
+    const btnCerrarModal = document.getElementById("btnCerrarModal");
+    const btnCancelarModal = document.getElementById("btnCancelarModal");
 
-    // Función principal: Cargar datos desde el servidor usando Fetch API
     function cargarPerfiles(pagina) {
-      // 1. Truco Date.now() para que nunca use caché y siempre pida datos frescos
       fetch(`/perfiles.json?page=${pagina}&nocache=${Date.now()}`)
         .then(response => response.json())
         .then(data => {
-          cuerpoTabla.innerHTML = ""; // Limpiar tabla
+          cuerpoTabla.innerHTML = "";
           
           if(data.perfiles.length === 0) {
-            cuerpoTabla.innerHTML = "<tr><td colspan='4' style='text-align:center;'>No hay perfiles registrados.</td></tr>";
+            cuerpoTabla.innerHTML = `<tr class="empty-row"><td colspan="4">No hay perfiles registrados</td></tr>`;
           }
 
-          // 2. MAGIA: Tomamos los permisos que nos mandó el PerfilesController
           const permisoEditar = data.permisos.editar;
           const permisoEliminar = data.permisos.eliminar;
 
           data.perfiles.forEach(perfil => {
-            // Evaluamos qué botones de acción dibujar según los permisos frescos
             let botonesHtml = "";
             
             if (permisoEditar) {
-              botonesHtml += `<button onclick="editarPerfil(${perfil.id}, '${perfil.strNombrePerfil}', ${perfil.bitAdministrador})" style="background-color: #ffc107; border:none; padding:5px; cursor:pointer; margin-right:5px;">Editar</button>`;
+              botonesHtml += `<button onclick="editarPerfil(${perfil.id}, '${perfil.strNombrePerfil}', ${perfil.bitAdministrador})" class="btn-action btn-edit">Editar</button>`;
             }
             
             if (permisoEliminar) {
-              botonesHtml += `<button onclick="eliminarPerfil(${perfil.id})" style="background-color: #dc3545; color:white; border:none; padding:5px; cursor:pointer;">Eliminar</button>`;
+              botonesHtml += `<button onclick="eliminarPerfil(${perfil.id})" class="btn-action btn-delete">Eliminar</button>`;
             }
 
-            // Si no tiene ningún permiso, mostramos un texto
             if (botonesHtml === "") {
-              botonesHtml = "<span style='color: #888;'>Sin acciones permitidas</span>";
+              botonesHtml = "<span class='no-actions'>Sin acciones</span>";
             }
+
+            const adminBadge = perfil.bitAdministrador 
+              ? '<span class="badge-admin">👑 Administrador</span>' 
+              : '<span class="badge-user">👤 Usuario</span>';
 
             const fila = document.createElement("tr");
             fila.innerHTML = `
               <td>${perfil.id}</td>
-              <td>${perfil.strNombrePerfil}</td>
-              <td>${perfil.bitAdministrador ? "Sí" : "No"}</td>
+              <td><strong>${escapeHtml(perfil.strNombrePerfil)}</strong></td>
+              <td>${adminBadge}</td>
               <td>${botonesHtml}</td>
             `;
             cuerpoTabla.appendChild(fila);
           });
 
-          // Actualizar controles de paginación
           document.getElementById("textoPaginacion").innerText = `Página ${data.pagina_actual} de ${data.total_paginas}`;
           document.getElementById("btnAnterior").disabled = data.pagina_actual <= 1;
           document.getElementById("btnSiguiente").disabled = data.pagina_actual >= data.total_paginas;
           paginaActual = data.pagina_actual;
-        });
+        })
+        .catch(error => console.error("Error:", error));
     }
 
-    // Cargar la primera página al abrir la vista
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function abrirModal() {
+      modal.style.display = "flex";
+      document.body.style.overflow = "hidden";
+    }
+
+    function cerrarModal() {
+      modal.style.display = "none";
+      document.body.style.overflow = "";
+    }
+
     cargarPerfiles(paginaActual);
 
-    // PAGINACIÓN: Eventos de los botones
     document.getElementById("btnAnterior").addEventListener("click", () => cargarPerfiles(paginaActual - 1));
     document.getElementById("btnSiguiente").addEventListener("click", () => cargarPerfiles(paginaActual + 1));
 
-    // MOSTRAR/OCULTAR FORMULARIO
-    // Solo agregamos el evento si el botón existe (es decir, si tiene permiso de Agregar)
+    // Abrir modal al hacer clic en Nuevo Perfil
     if (btnNuevo) {
       btnNuevo.addEventListener("click", () => {
-        tituloForm.innerText = "Crear Perfil";
+        tituloForm.innerText = "Crear Nuevo Perfil";
         inputId.value = "";
         inputNombre.value = "";
         inputAdmin.checked = false;
-        formulario.style.display = "block";
+        abrirModal();
       });
     }
 
-    document.getElementById("btnCancelar").addEventListener("click", () => {
-      formulario.style.display = "none";
+    // Cerrar modal
+    if (btnCerrarModal) {
+      btnCerrarModal.addEventListener("click", cerrarModal);
+    }
+
+    if (btnCancelarModal) {
+      btnCancelarModal.addEventListener("click", cerrarModal);
+    }
+
+    // Cerrar modal al hacer clic fuera
+    modal.addEventListener("click", function(e) {
+      if (e.target === modal) {
+        cerrarModal();
+      }
     });
 
-    // GUARDAR O ACTUALIZAR (Fetch API POST/PUT)
+    // Cerrar modal con tecla Escape
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape" && modal.style.display === "flex") {
+        cerrarModal();
+      }
+    });
+
+    // Guardar perfil
     document.getElementById("btnGuardar").addEventListener("click", () => {
       const nombre = inputNombre.value.trim();
       if (nombre === "") {
@@ -162,27 +750,25 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          formulario.style.display = "none";
-          cargarPerfiles(paginaActual); // Recargar la tabla sin refrescar la página
+          cerrarModal();
+          cargarPerfiles(paginaActual);
         } else {
-          alert("Error: " + data.errors.join(", "));
+          alert("Error: " + (data.errors ? data.errors.join(", ") : "Error al guardar"));
         }
       })
-      .catch(error => console.error("Error en la petición:", error));
+      .catch(error => console.error("Error:", error));
     });
 
-    // EDITAR: Llena el formulario con los datos de la fila
     window.editarPerfil = function(id, nombre, isAdmin) {
       tituloForm.innerText = "Editar Perfil";
       inputId.value = id;
       inputNombre.value = nombre;
-      inputAdmin.checked = isAdmin;
-      formulario.style.display = "block";
+      inputAdmin.checked = isAdmin === true || isAdmin === "true";
+      abrirModal();
     };
 
-    // ELIMINAR (Fetch API DELETE)
     window.eliminarPerfil = function(id) {
-      if (confirm("¿Estás seguro de eliminar este perfil?")) {
+      if (confirm("¿Estás seguro de eliminar este perfil? Esta acción no se puede deshacer.")) {
         fetch(`/perfiles/${id}.json`, {
           method: "DELETE",
           headers: {
@@ -193,12 +779,12 @@
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            cargarPerfiles(paginaActual); // Recargar tabla
+            cargarPerfiles(paginaActual);
           } else {
-            alert("Error al eliminar");
+            alert("Error al eliminar el perfil");
           }
         })
-        .catch(error => console.error("Error en la petición:", error));
+        .catch(error => console.error("Error:", error));
       }
     };
   });
