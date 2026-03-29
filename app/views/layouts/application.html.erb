@@ -23,6 +23,7 @@
 
       body { margin: 0; padding: 0; background-color: var(--light-bg); font-family: 'Segoe UI', sans-serif; }
 
+      /* --- NAVBAR --- */
       .navbar {
         background-color: var(--dark-bg);
         display: flex;
@@ -80,6 +81,26 @@
         background-color: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold);
         padding: 6px 15px; border-radius: 4px; font-weight: 600; cursor: pointer;
       }
+
+      /* --- BREADCRUMBS --- */
+      .breadcrumbs {
+        background-color: var(--white);
+        padding: 12px 30px;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+      }
+      .breadcrumbs a {
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s;
+      }
+      .breadcrumbs a:hover { color: var(--dark-bg); }
+      .breadcrumbs .separator { margin: 0 10px; color: #adb5bd; }
+      .breadcrumbs .current { color: #495057; font-weight: 500; }
     </style>
   </head>
 
@@ -152,6 +173,46 @@
           <%= button_to "Cerrar Sesión", logout_path, method: :delete, data: { turbo: false }, class: "btn-logout" %>
         </div>
       </nav>
+
+      <div class="breadcrumbs">
+        <%= link_to "Inicio", dashboard_path %>
+
+        <%# Si NO estamos en el dashboard, armamos la ruta %>
+        <% if request.path != dashboard_path %>
+          
+          <%# --- RUTAS DE SEGURIDAD --- %>
+          <% if ['perfiles', 'modulos', 'permisos', 'usuarios'].include?(controller.controller_name) %>
+            <span class="separator">/</span>
+            <span>Seguridad</span>
+            <span class="separator">/</span>
+            <span class="current">
+              <% if controller.controller_name == 'permisos' %>
+                Permisos - Perfil
+              <% else %>
+                <%= controller.controller_name.capitalize %>
+              <% end %>
+            </span>
+
+          <%# --- RUTAS PRINCIPALES (1 y 2) --- %>
+          <% elsif controller.controller_name == 'principales' %>
+            <% if action_name.include?('1_') %>
+              <span class="separator">/</span>
+              <span>Principal 1</span>
+            <% elsif action_name.include?('2_') %>
+              <span class="separator">/</span>
+              <span>Principal 2</span>
+            <% end %>
+            <span class="separator">/</span>
+            <span class="current"><%= action_name.gsub('principal', 'Principal ').gsub('_', '.') %></span>
+
+          <%# --- CUALQUIER OTRA RUTA --- %>
+          <% else %>
+            <span class="separator">/</span>
+            <span class="current"><%= controller.controller_name.capitalize %></span>
+          <% end %>
+
+        <% end %>
+      </div>
     <% end %>
 
     <main style="padding: 20px;">
