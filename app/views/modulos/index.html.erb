@@ -1,48 +1,56 @@
 <div style="font-family: sans-serif; padding: 20px;">
+  
   <h2>Gestión de Módulos</h2>
   
-  <%# 1. Restricción a nivel de servidor para el botón Nuevo %>
+  <%# --- BOTÓN AGREGAR: Solo se muestra si el perfil tiene bitAgregar en true --- %>
   <% if puede_agregar?("modulo") %>
-    <button id="btnNuevo" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; margin-bottom: 15px;">
+    <button id="btnNuevo" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; margin-bottom: 15px; border-radius: 4px;">
       + Nuevo Módulo
     </button>
   <% end %>
 
-  <div id="formularioModulo" style="display: none; background-color: #f4f4f4; padding: 15px; border: 1px solid #ddd; margin-bottom: 20px;">
-    <h3 id="formTitulo">Crear Módulo</h3>
+  <%# --- FORMULARIO OCULTO PARA CREAR / EDITAR --- %>
+  <div id="formularioModulo" style="display: none; background-color: #f4f4f4; padding: 15px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px;">
+    <h3 id="formTitulo" style="margin-top: 0;">Crear Módulo</h3>
     <input type="hidden" id="moduloId">
     
-    <label>Nombre del Módulo:</label><br>
-    <input type="text" id="strNombreModulo" style="width: 100%; padding: 8px; margin-bottom: 10px;" required>
+    <label style="font-weight: bold;">Nombre del Módulo:</label><br>
+    <input type="text" id="strNombreModulo" style="width: 100%; max-width: 400px; padding: 8px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;" required>
     
     <br>
-    <button id="btnGuardar" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; cursor: pointer;">Guardar</button>
-    <button id="btnCancelar" style="padding: 8px 15px; background-color: #6c757d; color: white; border: none; cursor: pointer;">Cancelar</button>
+    <button id="btnGuardar" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Guardar</button>
+    <button id="btnCancelar" style="padding: 8px 15px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
   </div>
 
-  <table border="1" width="100%" cellspacing="0" cellpadding="10" style="text-align: left; border-collapse: collapse;">
+  <%# --- TABLA DE DATOS --- %>
+  <table border="1" width="100%" cellspacing="0" cellpadding="10" style="text-align: left; border-collapse: collapse; background-color: white;">
     <thead style="background-color: #1a3c5b; color: white;">
       <tr>
-        <th>ID</th>
-        <th>Nombre del Módulo</th>
-        <th>Acciones</th>
+        <th style="width: 10%;">ID</th>
+        <th style="width: 50%;">Nombre del Módulo</th>
+        <th style="width: 40%;">Acciones</th>
       </tr>
     </thead>
     <tbody id="tablaModulosCuerpo">
       </tbody>
   </table>
 
-  <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
-    <button id="btnAnterior" style="padding: 5px 10px; cursor: pointer;">◀ Anterior</button>
-    <span id="textoPaginacion">Página 1</span>
-    <button id="btnSiguiente" style="padding: 5px 10px; cursor: pointer;">Siguiente ▶</button>
+  <%# --- PAGINACIÓN --- %>
+  <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center; background-color: #e9ecef; padding: 10px; border-radius: 5px;">
+    <button id="btnAnterior" style="padding: 6px 12px; cursor: pointer; border: 1px solid #ccc; background-color: white; border-radius: 4px;">◀ Anterior</button>
+    <strong id="textoPaginacion">Página 1</strong>
+    <button id="btnSiguiente" style="padding: 6px 12px; cursor: pointer; border: 1px solid #ccc; background-color: white; border-radius: 4px;">Siguiente ▶</button>
   </div>
 </div>
 
+<%# --- SCRIPTS PARA FETCH API Y MANIPULACIÓN DEL DOM --- %>
 <script>
   document.addEventListener("turbo:load", function() {
     let paginaActual = 1;
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    
+    const metaCsrf = document.querySelector('meta[name="csrf-token"]');
+    if (!metaCsrf) return; 
+    const csrfToken = metaCsrf.content;
 
     const cuerpoTabla = document.getElementById("tablaModulosCuerpo");
     const formulario = document.getElementById("formularioModulo");
@@ -51,8 +59,8 @@
     const tituloForm = document.getElementById("formTitulo");
     const btnNuevo = document.getElementById("btnNuevo");
 
+    // 1. CARGAR DATOS (Fetch API GET)
     function cargarModulos(pagina) {
-      // Agregamos nocache para evitar datos viejos
       fetch(`/modulos.json?page=${pagina}&nocache=${Date.now()}`)
         .then(response => response.json())
         .then(data => {
@@ -62,24 +70,24 @@
             cuerpoTabla.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No hay módulos registrados.</td></tr>";
           }
 
-          // 2. MAGIA: Extraer permisos del JSON enviado por el controlador
+          // 🚨 LECTURA DE PERMISOS DESDE EL CONTROLADOR 🚨
           const permisoEditar = data.permisos.editar;
           const permisoEliminar = data.permisos.eliminar;
 
           data.modulos.forEach(modulo => {
             let botonesHtml = "";
             
-            // Solo creamos el botón si el permiso es true
+            // 🚨 CREACIÓN DINÁMICA DE BOTONES SEGÚN PERMISOS 🚨
             if (permisoEditar) {
-              botonesHtml += `<button onclick="editarModulo(${modulo.id}, '${modulo.strNombreModulo}')" style="background-color: #ffc107; border:none; padding:5px; cursor:pointer; margin-right:5px;">Editar</button>`;
+              botonesHtml += `<button onclick="editarModulo(${modulo.id}, '${modulo.strNombreModulo}')" style="background-color: #ffc107; color: black; border:none; padding:6px 12px; cursor:pointer; margin-right:5px; border-radius:4px;">Editar</button>`;
             }
             
             if (permisoEliminar) {
-              botonesHtml += `<button onclick="eliminarModulo(${modulo.id})" style="background-color: #dc3545; color:white; border:none; padding:5px; cursor:pointer;">Eliminar</button>`;
+              botonesHtml += `<button onclick="eliminarModulo(${modulo.id})" style="background-color: #dc3545; color:white; border:none; padding:6px 12px; cursor:pointer; border-radius:4px;">Eliminar</button>`;
             }
 
             if (botonesHtml === "") {
-              botonesHtml = "<span style='color: #888;'>Sin acciones</span>";
+              botonesHtml = "<span style='color: #888; font-style: italic;'>Sin acciones permitidas</span>";
             }
 
             const fila = document.createElement("tr");
@@ -95,7 +103,8 @@
           document.getElementById("btnAnterior").disabled = data.pagina_actual <= 1;
           document.getElementById("btnSiguiente").disabled = data.pagina_actual >= (data.total_paginas || 1);
           paginaActual = data.pagina_actual;
-        });
+        })
+        .catch(error => console.error("Error cargando módulos:", error));
     }
 
     cargarModulos(paginaActual);
@@ -103,7 +112,7 @@
     document.getElementById("btnAnterior").addEventListener("click", () => cargarModulos(paginaActual - 1));
     document.getElementById("btnSiguiente").addEventListener("click", () => cargarModulos(paginaActual + 1));
 
-    // Solo activamos el evento si el botón existe en el HTML
+    // 2. MOSTRAR FORMULARIO
     if (btnNuevo) {
       btnNuevo.addEventListener("click", () => {
         tituloForm.innerText = "Crear Módulo";
@@ -117,10 +126,12 @@
       formulario.style.display = "none";
     });
 
+    // 3. GUARDAR / ACTUALIZAR
     document.getElementById("btnGuardar").addEventListener("click", () => {
       const nombre = inputNombre.value.trim();
+      
       if (nombre === "") {
-        alert("El nombre del módulo es obligatorio");
+        alert("El nombre del módulo es obligatorio.");
         return;
       }
 
@@ -142,14 +153,15 @@
       .then(data => {
         if (data.success) {
           formulario.style.display = "none";
-          cargarModulos(paginaActual);
+          cargarModulos(paginaActual); 
         } else {
           alert("Error: " + (data.errors ? data.errors.join(", ") : "Permiso denegado"));
         }
       })
-      .catch(error => console.error("Error:", error));
+      .catch(error => console.error("Error al guardar:", error));
     });
 
+    // 4. PREPARAR EDICIÓN
     window.editarModulo = function(id, nombre) {
       tituloForm.innerText = "Editar Módulo";
       inputId.value = id;
@@ -157,6 +169,7 @@
       formulario.style.display = "block";
     };
 
+    // 5. ELIMINAR
     window.eliminarModulo = function(id) {
       if (confirm("¿Estás seguro de eliminar este módulo?")) {
         fetch(`/modulos/${id}.json`, {
@@ -171,10 +184,10 @@
           if (data.success) {
             cargarModulos(paginaActual);
           } else {
-            alert("Error al eliminar (posible falta de permisos)");
+            alert("Error: " + (data.errors ? data.errors.join(", ") : "Falta de permisos o conflicto."));
           }
         })
-        .catch(error => console.error("Error:", error));
+        .catch(error => console.error("Error al eliminar:", error));
       }
     };
   });

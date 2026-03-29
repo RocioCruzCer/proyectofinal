@@ -7,9 +7,16 @@ Rails.application.routes.draw do
   get "dashboard", to: "dashboard#index", as: :dashboard
 
   # =======================================================
+  # RUTAS ESTÁTICAS (Principal 1 y 2)
+  # =======================================================
+  get 'principal1_1', to: 'principales#principal1_1', as: :principal1_1
+  get 'principal1_2', to: 'principales#principal1_2', as: :principal1_2
+  get 'principal2_1', to: 'principales#principal2_1', as: :principal2_1
+  get 'principal2_2', to: 'principales#principal2_2', as: :principal2_2
+
+  # =======================================================
   # RUTAS ESPECIALES DE PERMISOS (Deben ir ANTES de resources)
   # =======================================================
-  # Movimos estas líneas aquí arriba para que tengan prioridad
   get  "permisos/buscar", to: "permisos#buscar"
   post "permisos/guardar_matriz", to: "permisos#guardar_matriz"
 

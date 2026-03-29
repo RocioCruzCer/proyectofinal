@@ -1,18 +1,22 @@
 class PermisosController < ApplicationController
+  # Filtro de seguridad para acceso HTML
+  before_action :exigir_permiso_html, only: [:index]
+
   # GET /permisos
   def index
     @perfiles = Perfil.all.order(:strNombrePerfil)
   end
 
-  # Acción para obtener todos los módulos agrupados y los permisos actuales del perfil
   # GET /permisos/buscar.json?perfil_id=1
   def buscar
+    # 1. Seguridad: Verificar que pueda consultar
+    unless puede_consultar?("permisosperfil")
+      return render json: { success: false, errors: ["No autorizado"] }, status: :forbidden
+    end
+
     perfil_id = params[:perfil_id]
-    
-    # Buscamos qué permisos ya existen para este perfil
     permisos_existentes = PermisosPerfil.where(idPerfil: perfil_id).index_by(&:idModulo)
 
-    # Función auxiliar (Lambda) para no repetir código. Arma el JSON de cada fila.
     armar_permiso = ->(m) do
       p = permisos_existentes[m.id]
       {
@@ -26,8 +30,6 @@ class PermisosController < ApplicationController
       }
     end
 
-    # Armamos la matriz como un Diccionario (Hash), agrupando por títulos
-    # y excluyendo las palabras padre para que no tengan checkboxes.
     matriz_agrupada = {
       "SEGURIDAD" => Modulo.where(strNombreModulo: ['perfil', 'modulo', 'permisosperfil', 'usuario']).map(&armar_permiso),
       "PRINCIPAL 1" => Modulo.where(strNombreModulo: ['principal1_1', 'principal1_2']).map(&armar_permiso),
@@ -39,13 +41,22 @@ class PermisosController < ApplicationController
       ]).map(&armar_permiso)
     }
 
-    # Mandamos el JSON estructurado por grupos
-    render json: matriz_agrupada
+    # 2. MAGIA: Envolvemos la matriz e inyectamos los permisos de edición
+    render json: {
+      modulos_agrupados: matriz_agrupada,
+      permisos_acciones: {
+        can_edit: view_context.puede_editar?("permisosperfil") || view_context.puede_agregar?("permisosperfil")
+      }
+    }
   end
 
-  # Acción para guardar toda la tabla de una vez
   # POST /permisos/guardar_matriz
   def guardar_matriz
+    # 3. Seguridad Backend: Bloqueamos guardado si no tiene permiso
+    unless puede_editar?("permisosperfil") || puede_agregar?("permisosperfil")
+      return render json: { success: false, errors: ["No tienes permiso para modificar la matriz."] }, status: :forbidden
+    end
+
     perfil_id = params[:idPerfil]
     permisos_data = params[:permisos]
 
@@ -65,6 +76,14 @@ class PermisosController < ApplicationController
       render json: { success: true, message: "Permisos actualizados correctamente" }
     rescue => e
       render json: { success: false, errors: [e.message] }, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def exigir_permiso_html
+    unless puede_consultar?("permisosperfil")
+      redirect_to dashboard_path, alert: "Acceso denegado a Permisos Perfil."
     end
   end
 end

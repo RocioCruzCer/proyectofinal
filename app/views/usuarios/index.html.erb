@@ -1,8 +1,12 @@
 <div style="font-family: sans-serif; padding: 20px;">
   <h2>Gestión de Usuarios</h2>
-  <button id="btnNuevo" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; margin-bottom: 15px;">
-    + Nuevo Usuario
-  </button>
+  
+  <%# 1. BLOQUEO RUBY: El botón + Nuevo solo sale si tiene permiso Agregar %>
+  <% if puede_agregar?("usuario") %>
+    <button id="btnNuevo" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; margin-bottom: 15px;">
+      + Nuevo Usuario
+    </button>
+  <% end %>
 
   <div id="formularioUsuario" style="display: none; background-color: #f4f4f4; padding: 15px; border: 1px solid #ddd; margin-bottom: 20px;">
     <h3 id="formTitulo">Crear Usuario</h3>
@@ -70,13 +74,17 @@
 <script>
   document.addEventListener("turbo:load", function() {
     let paginaActual = 1;
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    const metaCsrf = document.querySelector('meta[name="csrf-token"]');
+    if (!metaCsrf) return;
+    const csrfToken = metaCsrf.content;
+    
     const cuerpo = document.getElementById("tablaUsuariosCuerpo");
     const selectPerfil = document.getElementById("idPerfil");
     const formulario = document.getElementById("formularioUsuario");
+    const btnNuevo = document.getElementById("btnNuevo");
 
     function cargarUsuarios(pagina) {
-      fetch(`/usuarios.json?page=${pagina}`)
+      fetch(`/usuarios.json?page=${pagina}&nocache=${Date.now()}`)
         .then(res => res.json())
         .then(data => {
           cuerpo.innerHTML = "";
@@ -90,10 +98,27 @@
             });
           }
 
+          // 2. LECTURA DE PERMISOS PARA JS
+          const permisoEditar = data.permisos.editar;
+          const permisoEliminar = data.permisos.eliminar;
+
           data.usuarios.forEach(u => {
             const imgHtml = u.foto_url 
               ? `<img src="${u.foto_url}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; display:block; margin:auto;">` 
               : `<div style="width:40px; height:40px; border-radius:50%; background:#ddd; margin:auto;"></div>`;
+
+            // 3. CONSTRUCCIÓN DINÁMICA DE BOTONES
+            let botonesHtml = "";
+            
+            if (permisoEditar) {
+              botonesHtml += `<button onclick="editarUsuario(${u.id}, '${u.strNombreUsuario}', '${u.strCorreo}', '${u.strNumeroCelular}', ${u.idPerfil}, ${u.idEstadoUsuario})" style="cursor:pointer; background:#ffc107; border:none; padding:5px; margin-right:5px;">Editar</button>`;
+            }
+            if (permisoEliminar) {
+              botonesHtml += `<button onclick="eliminarUsuario(${u.id})" style="cursor:pointer; background:#dc3545; color:white; border:none; padding:5px;">Borrar</button>`;
+            }
+            if (botonesHtml === "") {
+              botonesHtml = "<span style='color: #888; font-size: 13px;'>Sin acciones</span>";
+            }
 
             const fila = document.createElement("tr");
             fila.innerHTML = `
@@ -102,10 +127,7 @@
               <td style="padding:10px;">${u.strCorreo}</td>
               <td style="padding:10px;">${u.perfil_nombre}</td>
               <td style="padding:10px;">${u.idEstadoUsuario == 1 ? '✅ Activo' : '❌ Inactivo'}</td>
-              <td style="padding:10px;">
-                <button onclick="editarUsuario(${u.id}, '${u.strNombreUsuario}', '${u.strCorreo}', '${u.strNumeroCelular}', ${u.idPerfil}, ${u.idEstadoUsuario})" style="cursor:pointer; background:#ffc107; border:none; padding:5px;">Editar</button>
-                <button onclick="eliminarUsuario(${u.id})" style="cursor:pointer; background:#dc3545; color:white; border:none; padding:5px;">Borrar</button>
-              </td>
+              <td style="padding:10px;">${botonesHtml}</td>
             `;
             cuerpo.appendChild(fila);
           });
@@ -119,16 +141,19 @@
 
     cargarUsuarios(paginaActual);
 
-    document.getElementById("btnNuevo").onclick = () => {
-      document.getElementById("formTitulo").innerText = "Crear Usuario";
-      document.getElementById("usuarioId").value = "";
-      document.getElementById("strNombreUsuario").value = "";
-      document.getElementById("strCorreo").value = "";
-      document.getElementById("strNumeroCelular").value = "";
-      document.getElementById("password").value = "";
-      document.getElementById("foto_perfil").value = "";
-      formulario.style.display = "block";
-    };
+    // 4. PROTECCIÓN DEL BOTÓN NUEVO EN JS
+    if (btnNuevo) {
+      btnNuevo.onclick = () => {
+        document.getElementById("formTitulo").innerText = "Crear Usuario";
+        document.getElementById("usuarioId").value = "";
+        document.getElementById("strNombreUsuario").value = "";
+        document.getElementById("strCorreo").value = "";
+        document.getElementById("strNumeroCelular").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("foto_perfil").value = "";
+        formulario.style.display = "block";
+      };
+    }
 
     document.getElementById("btnCancelar").onclick = () => formulario.style.display = "none";
 
@@ -175,7 +200,7 @@
       document.getElementById("strNumeroCelular").value = cel;
       document.getElementById("idPerfil").value = per;
       document.getElementById("idEstadoUsuario").value = est;
-      document.getElementById("password").value = ""; // Opcional al editar
+      document.getElementById("password").value = ""; 
       formulario.style.display = "block";
     };
 

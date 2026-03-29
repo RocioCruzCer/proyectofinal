@@ -2,9 +2,9 @@ class ApplicationController < ActionController::Base
   # 1. Seguridad global
   before_action :exigir_usuario_logueado
 
-  # 2. Métodos disponibles en Vistas y Helpers
+  # 2. Métodos disponibles en Vistas y Helpers (¡AQUÍ AGREGAMOS :puede_detalle?!)
   helper_method :usuario_actual, :usuario_logueado?, :puede_consultar?, 
-                :puede_agregar?, :puede_editar?, :puede_eliminar?
+                :puede_agregar?, :puede_editar?, :puede_eliminar?, :puede_detalle?
 
   private
 
@@ -30,6 +30,9 @@ class ApplicationController < ActionController::Base
   def puede_agregar?(modulo);   validar_permiso(modulo, :bitAgregar); end
   def puede_editar?(modulo);    validar_permiso(modulo, :bitEditar); end
   def puede_eliminar?(modulo);  validar_permiso(modulo, :bitEliminar); end
+  
+  # ¡AQUÍ AGREGAMOS LA LÍNEA DEL DETALLE!
+  def puede_detalle?(modulo);   validar_permiso(modulo, :bitDetalle); end
 
   def validar_permiso(nombre_modulo, accion_bit)
     return false unless usuario_actual

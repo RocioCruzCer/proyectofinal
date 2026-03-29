@@ -1,0 +1,91 @@
+<div style="font-family: sans-serif; padding: 20px;">
+  <h2>Módulo Principal 1.1</h2>
+  <p style="color: #666; font-size: 14px;">
+    <i>* Esta es una pantalla estática. Los registros que agregues aquí desaparecerán al recargar la página.</i>
+  </p>
+
+  <% if puede_agregar?('principal1_1') %>
+    <button onclick="agregarRegistro()" style="background-color: #28a745; color: white; padding: 10px; border: none; margin-bottom: 15px; cursor: pointer;">
+      + Nuevo Registro
+    </button>
+  <% end %>
+
+  <table border="1" width="100%" cellspacing="0" cellpadding="10" style="border-collapse: collapse; text-align: left;" id="tabla-principal">
+    <thead style="background-color: #3b5bdb; color: white;">
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Estatus</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @datos.each do |fila| %>
+        <tr>
+          <td><%= fila[:id] %></td>
+          <td><%= fila[:nombre] %></td>
+          <td><%= fila[:estatus] %></td>
+          <td>
+            
+            <% if puede_editar?('principal1_1') %>
+              <button onclick="alert('Simulando: Editar registro')" style="background-color: #ffc107; color: black; border: none; padding: 5px 10px; cursor: pointer;">Editar</button>
+            <% end %>
+
+            <% if puede_eliminar?('principal1_1') %>
+              <button onclick="this.closest('tr').remove()" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer;">Eliminar</button>
+            <% end %>
+
+            <% unless puede_editar?('principal1_1') || puede_eliminar?('principal1_1') %>
+              <span style="color: gray; font-size: 12px;">Sin acciones permitidas</span>
+            <% end %>
+
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<script>
+  function agregarRegistro() {
+    // 1. Pedimos los datos al usuario mediante alertas del navegador
+    let nombre = prompt("Ingresa el nombre del nuevo registro:");
+    if (!nombre) return; // Si el usuario da 'Cancelar' o lo deja vacío, detenemos la función
+
+    let estatus = prompt("Ingresa el estatus (Ej: Activo, Inactivo):", "Activo") || "Activo";
+
+    // 2. Seleccionamos el cuerpo de la tabla para insertar la fila
+    let tbody = document.querySelector("#tabla-principal tbody");
+    
+    // Generamos un ID falso al azar para que parezca real
+    let nuevoId = Math.floor(Math.random() * 1000) + 10; 
+
+    // 3. Revisamos qué permisos tiene el usuario desde Ruby para saber qué botones dibujarle a la nueva fila
+    let puedeEditar = <%= puede_editar?('principal1_1') ? 'true' : 'false' %>;
+    let puedeEliminar = <%= puede_eliminar?('principal1_1') ? 'true' : 'false' %>;
+
+    // 4. Construimos los botones que correspondan
+    let botonesHtml = "";
+    if (puedeEditar) {
+      botonesHtml += `<button onclick="alert('Simulando: Editar registro')" style="background-color: #ffc107; color: black; border: none; padding: 5px 10px; margin-right: 5px; cursor: pointer;">Editar</button>`;
+    }
+    if (puedeEliminar) {
+      // Nota: onclick="this.closest('tr').remove()" borra visualmente la fila
+      botonesHtml += `<button onclick="this.closest('tr').remove()" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer;">Eliminar</button>`;
+    }
+    if (!puedeEditar && !puedeEliminar) {
+      botonesHtml += `<span style="color: gray; font-size: 12px;">Sin acciones permitidas</span>`;
+    }
+
+    // 5. Creamos la fila HTML y la insertamos en la tabla
+    let nuevaFila = document.createElement("tr");
+    nuevaFila.innerHTML = `
+      <td>${nuevoId}</td>
+      <td>${nombre}</td>
+      <td>${estatus}</td>
+      <td>${botonesHtml}</td>
+    `;
+    
+    tbody.appendChild(nuevaFila);
+  }
+</script>

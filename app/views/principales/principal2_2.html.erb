@@ -1,0 +1,49 @@
+<div style="font-family: sans-serif; padding: 20px;">
+  <h2>Módulo Principal 1.1</h2>
+  <p>Esta es una pantalla estática. Los botones no guardan en base de datos.</p>
+
+  <% if puede_agregar?('principal1_1') %>
+    <button onclick="alert('Simulando: Crear nuevo registro')" style="background-color: #28a745; color: white; padding: 10px; border: none; margin-bottom: 15px; cursor: pointer;">
+      + Nuevo Registro
+    </button>
+  <% end %>
+
+  <table border="1" width="100%" cellspacing="0" cellpadding="10" style="border-collapse: collapse; text-align: left;">
+    <thead style="background-color: #3b5bdb; color: white;">
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Estatus</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @datos.each do |fila| %>
+        <tr>
+          <td><%= fila[:id] %></td>
+          <td><%= fila[:nombre] %></td>
+          <td><%= fila[:estatus] %></td>
+          <td>
+            
+            <% if puede_detalle?('principal1_1') %>
+              <button onclick="alert('Simulando: Ver detalle')" style="background-color: #17a2b8; color: white; border: none; padding: 5px 10px; cursor: pointer;">Detalle</button>
+            <% end %>
+
+            <% if puede_editar?('principal1_1') %>
+              <button onclick="alert('Simulando: Editar registro')" style="background-color: #ffc107; color: black; border: none; padding: 5px 10px; cursor: pointer;">Editar</button>
+            <% end %>
+
+            <% if puede_eliminar?('principal1_1') %>
+              <button onclick="alert('Simulando: Eliminar registro')" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer;">Eliminar</button>
+            <% end %>
+
+            <% unless puede_detalle?('principal1_1') || puede_editar?('principal1_1') || puede_eliminar?('principal1_1') %>
+              <span style="color: gray; font-size: 12px;">Sin acciones permitidas</span>
+            <% end %>
+
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

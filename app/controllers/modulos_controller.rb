@@ -7,7 +7,7 @@ class ModulosController < ApplicationController
       format.html # Carga la cáscara de la vista
       
       format.json do
-        # 1. Validación de seguridad para JSON
+        # 1. Validación de seguridad para JSON: Bloquea si no hay permiso de consulta
         unless puede_consultar?("modulo")
           return render json: { success: false, errors: ["No autorizado"] }, status: :forbidden
         end
@@ -23,9 +23,10 @@ class ModulosController < ApplicationController
           modulos: modulos,
           total_paginas: total_paginas,
           pagina_actual: page,
+          # 👇 ENVÍO DE PERMISOS: Usamos view_context para no perder el alcance (scope)
           permisos: {
-            editar: puede_editar?("modulo"),
-            eliminar: puede_eliminar?("modulo")
+            editar: view_context.puede_editar?("modulo"),
+            eliminar: view_context.puede_eliminar?("modulo")
           }
         }
       end
@@ -33,6 +34,7 @@ class ModulosController < ApplicationController
   end
 
   def create
+    # 2. Validación de seguridad: Solo crea si tiene permiso de Agregar
     if puede_agregar?("modulo")
       @modulo = Modulo.new(modulo_params)
       if @modulo.save
@@ -46,6 +48,7 @@ class ModulosController < ApplicationController
   end
 
   def update
+    # 3. Validación de seguridad: Solo actualiza si tiene permiso de Editar
     if puede_editar?("modulo")
       @modulo = Modulo.find(params[:id])
       if @modulo.update(modulo_params)
@@ -59,10 +62,11 @@ class ModulosController < ApplicationController
   end
 
   def destroy
+    # 4. Validación de seguridad: Solo elimina si tiene permiso de Eliminar
     if puede_eliminar?("modulo")
       @modulo = Modulo.find(params[:id])
       if @modulo.destroy
-        render json: { success: true, message: 'Eliminado.' }
+        render json: { success: true, message: 'Eliminado correctamente.' }
       else
         render json: { success: false, errors: ["No se pudo eliminar."] }, status: :conflict
       end
@@ -73,11 +77,12 @@ class ModulosController < ApplicationController
 
   private
 
+  # Seguridad de Strong Parameters
   def modulo_params
     params.require(:modulo).permit(:strNombreModulo)
   end
 
-  # Nueva lógica de seguridad: Redirige solo si es HTML, si es JSON manda error limpio
+  # Redirección en caso de intentar acceder a la vista HTML sin permiso
   def exigir_permiso_html
     unless puede_consultar?("modulo")
       redirect_to root_path, alert: "Acceso denegado a Módulos."

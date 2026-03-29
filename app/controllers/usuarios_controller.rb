@@ -1,9 +1,8 @@
 class UsuariosController < ApplicationController
   include Rails.application.routes.url_helpers
   
-  # Filtro de seguridad: Verifica si el usuario tiene permiso de consulta para ver la lista
+  # Filtro de seguridad: Verifica permisos específicos
   before_action -> { validar_acceso("usuario", :bitConsulta) }, only: [:index]
-  # Verifica permisos específicos para acciones de escritura
   before_action -> { validar_acceso("usuario", :bitAgregar) }, only: [:create]
   before_action -> { validar_acceso("usuario", :bitEditar) }, only: [:update]
   before_action -> { validar_acceso("usuario", :bitEliminar) }, only: [:destroy]
@@ -37,19 +36,15 @@ class UsuariosController < ApplicationController
           }
         end
 
-        # Aquí enviamos también los permisos que tiene el usuario actual sobre este módulo
-        # para que el JavaScript pueda ocultar o mostrar botones de editar/borrar
-        mis_permisos = PermisosPerfil.find_by(idPerfil: usuario_actual.idPerfil, idModulo: Modulo.find_by(strNombreModulo: "usuario")&.id)
-
         render json: {
           usuarios: usuarios_list,
           perfiles: Perfil.all.select(:id, :strNombrePerfil),
           total_paginas: total_paginas,
           pagina_actual: page,
-          permisos_acciones: {
-            can_edit: mis_permisos&.bitEditar || false,
-            can_delete: mis_permisos&.bitEliminar || false,
-            can_add: mis_permisos&.bitAgregar || false
+          # 👇 UNIFICADO: Usamos view_context para enviar los permisos seguros
+          permisos: {
+            editar: view_context.puede_editar?("usuario"),
+            eliminar: view_context.puede_eliminar?("usuario")
           }
         }
       end
@@ -88,12 +83,10 @@ class UsuariosController < ApplicationController
     params.require(:usuario).permit(:strNombreUsuario, :strCorreo, :strNumeroCelular, :idPerfil, :idEstadoUsuario, :password, :foto_perfil)
   end
 
-  # Método genérico para validar permisos desde el controlador
   def validar_acceso(nombre_modulo, tipo_permiso)
     modulo = Modulo.find_by(strNombreModulo: nombre_modulo)
     permiso = PermisosPerfil.find_by(idPerfil: usuario_actual.idPerfil, idModulo: modulo&.id)
 
-    # Si no tiene el bit correspondiente activado (ej: bitConsulta, bitEditar)
     unless permiso&.send(tipo_permiso)
       respond_to do |format|
         format.html { redirect_to dashboard_path, alert: "No tienes permiso para esta acción." }
