@@ -3,6 +3,7 @@
   <head>
     <title>Mi Sistema Web</title>
     <meta name="turbo-cache-control" content="no-cache">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -10,97 +11,493 @@
     <%= javascript_importmap_tags %>
 
     <style>
-      /* --- VARIABLES DE COLOR --- */
+      /* ============================================
+         VARIABLES DE COLOR (Paleta proporcionada)
+      ============================================ */
       :root {
-        --primary-blue: #1A6D8F;
-        --dark-bg: #2C3A42;
-        --accent-gold: #D9B650;
-        --success-green: #2C6E4F;
-        --light-bg: #F5F7F9;
-        --white: #FFFFFF;
-        --border: #E2E6EA;
+        --primary: #246BD1;
+      --primary-dark: #1A4F9C;
+      --secondary: #7C8EF8;
+      --accent: #F3B0B8;
+      --success: #02900E;
+      --gray-bg: #C2C7CC;
+      --gray-light: #F8F9FC;
+      --gray-medium: #6C757D;
+      --gray-dark: #2C3E50;
+      --white: #FFFFFF;
+      --border: #E9ECEF;
+    }
+
+    /* ============================================
+       TIPOGRAFÍAS MODERNAS
+    ============================================ */
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, var(--gray-light) 0%, #F1F3F5 100%);
+      font-family: 'Montserrat', sans-serif;
+      color: var(--gray-dark);
+      min-height: 100vh;
+    }
+
+    /* ============================================
+       NAVBAR MEJORADA
+    ============================================ */
+    .navbar {
+      background: linear-gradient(135deg, var(--gray-dark) 0%, #1F2A33 100%);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 32px;
+      height: 70px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border-bottom: 3px solid var(--primary);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      gap: 4px;
+    }
+
+    .nav-item {
+      position: relative;
+      height: 100%;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      padding: 0 20px;
+      color: rgba(255, 255, 255, 0.9);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      margin: 0 2px;
+      position: relative;
+    }
+
+    .nav-link:hover {
+      background-color: rgba(124, 142, 248, 0.15);
+      color: var(--white);
+    }
+
+    .nav-item > span.nav-link {
+      cursor: pointer;
+    }
+
+    .nav-item > span.nav-link small {
+      font-size: 10px;
+      margin-left: 6px;
+      transition: transform 0.3s ease;
+      display: inline-block;
+    }
+
+    .nav-item:hover > span.nav-link small {
+      transform: rotate(180deg);
+    }
+
+    /* ============================================
+       DROPDOWN MEJORADO
+    ============================================ */
+    .dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% - 4px);
+      left: 0;
+      background-color: var(--white);
+      min-width: 240px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+      z-index: 1000;
+      list-style: none;
+      padding: 8px 0;
+      margin: 0;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      animation: dropdownFadeIn 0.2s ease;
+    }
+
+    @keyframes dropdownFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
       }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-      body { margin: 0; padding: 0; background-color: var(--light-bg); font-family: 'Segoe UI', sans-serif; }
+    .dropdown li a {
+      display: block;
+      padding: 10px 20px;
+      color: var(--gray-dark);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'Montserrat', sans-serif;
+      transition: all 0.2s ease;
+      position: relative;
+    }
 
-      /* --- NAVBAR --- */
+    .dropdown li a:hover {
+      background: linear-gradient(90deg, rgba(36, 107, 209, 0.05) 0%, rgba(124, 142, 248, 0.05) 100%);
+      color: var(--primary);
+      padding-left: 28px;
+    }
+
+    .dropdown li a:hover::before {
+      content: '';
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 4px;
+      background-color: var(--primary);
+      border-radius: 50%;
+    }
+
+    .nav-item:hover .dropdown {
+      display: block;
+    }
+
+    /* ============================================
+       USER SECTION MEJORADA
+    ============================================ */
+    .user-section {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 13px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 16px;
+      border-radius: 40px;
+      transition: all 0.3s ease;
+    }
+
+    .user-section:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .user-name {
+      font-weight: 700;
+      color: var(--secondary);
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .btn-logout {
+      background: transparent;
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.9);
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 12px;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-logout:hover {
+      background-color: rgba(243, 176, 184, 0.2);
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    /* ============================================
+       BREADCRUMBS - SIN MARGEN, SIN CONTORNO
+    ============================================ */
+    .breadcrumbs {
+      padding: 16px 32px 8px 32px;
+      font-size: 13px;
+      color: var(--gray-medium);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: transparent;
+    }
+
+    .breadcrumbs a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .breadcrumbs a:hover {
+      color: var(--secondary);
+      text-decoration: underline;
+    }
+
+    .breadcrumbs .separator {
+      color: var(--gray-bg);
+      font-weight: 300;
+    }
+
+    .breadcrumbs .current {
+      color: var(--gray-dark);
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* ============================================
+       MAIN CONTENT
+    ============================================ */
+    main {
+      padding: 8px 32px 32px 32px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ============================================
+       MODAL DE CONFIRMACIÓN
+    ============================================ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .modal-container {
+      background: var(--white);
+      border-radius: 24px;
+      width: 90%;
+      max-width: 400px;
+      overflow: hidden;
+      animation: slideUp 0.3s ease;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      padding: 24px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, rgba(243, 176, 184, 0.2) 0%, rgba(243, 176, 184, 0.1) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-icon svg {
+      color: var(--accent);
+    }
+
+    .modal-header h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--gray-dark);
+      margin: 0;
+    }
+
+    .modal-body {
+      padding: 20px 24px;
+      color: var(--gray-medium);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .modal-footer {
+      padding: 16px 24px 24px;
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-modal-cancel {
+      padding: 10px 20px;
+      background: var(--gray-light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--gray-medium);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-modal-cancel:hover {
+      background: var(--border);
+      transform: translateY(-1px);
+    }
+
+    .btn-modal-confirm {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border: none;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-modal-confirm:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(36, 107, 209, 0.3);
+    }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 1024px) {
       .navbar {
-        background-color: var(--dark-bg);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 30px;
-        height: 65px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        border-bottom: 3px solid var(--primary-blue);
-      }
-
-      .nav-menu { display: flex; list-style: none; margin: 0; padding: 0; height: 100%; }
-      .nav-item { position: relative; height: 100%; }
-      .nav-link {
-        display: flex;
-        align-items: center;
-        height: 100%;
         padding: 0 20px;
-        color: var(--white);
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 500;
-        transition: all 0.3s ease;
       }
-      .nav-link:hover { background-color: rgba(255,255,255,0.05); color: var(--accent-gold); }
-
-      .dropdown {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        background-color: var(--white);
-        min-width: 220px;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-        z-index: 1000;
-        list-style: none;
-        padding: 10px 0;
-        margin: 0;
-        border-radius: 0 0 4px 4px;
-        border: 1px solid var(--border);
+      
+      .nav-link {
+        padding: 0 14px;
+        font-size: 12px;
       }
-      .dropdown li a {
-        display: block;
-        padding: 12px 20px;
-        color: var(--dark-bg);
-        text-decoration: none;
-        font-size: 14px;
+      
+      main {
+        padding: 8px 20px 24px 20px;
       }
-      .dropdown li a:hover { background-color: var(--light-bg); color: var(--primary-blue); padding-left: 25px; }
-      .nav-item:hover .dropdown { display: block; }
-
-      .user-section { display: flex; align-items: center; gap: 20px; color: var(--white); font-size: 14px; }
-      .user-name { font-weight: 600; color: var(--accent-gold); }
-      .btn-logout {
-        background-color: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold);
-        padding: 6px 15px; border-radius: 4px; font-weight: 600; cursor: pointer;
-      }
-
-      /* --- BREADCRUMBS --- */
+      
       .breadcrumbs {
-        background-color: var(--white);
-        padding: 12px 30px;
-        border-bottom: 1px solid var(--border);
-        font-size: 13px;
-        color: #6c757d;
-        display: flex;
-        align-items: center;
+        padding: 12px 20px 6px 20px;
       }
-      .breadcrumbs a {
-        color: var(--primary-blue);
-        text-decoration: none;
-        font-weight: 600;
-        transition: color 0.2s;
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 12px 16px;
+        gap: 12px;
       }
-      .breadcrumbs a:hover { color: var(--dark-bg); }
-      .breadcrumbs .separator { margin: 0 10px; color: #adb5bd; }
-      .breadcrumbs .current { color: #495057; font-weight: 500; }
+      
+      .nav-menu {
+        flex-wrap: wrap;
+        height: auto;
+        gap: 4px;
+      }
+      
+      .nav-item {
+        height: auto;
+      }
+      
+      .nav-link {
+        padding: 8px 12px;
+        height: auto;
+      }
+      
+      .dropdown {
+        position: static;
+        box-shadow: none;
+        padding-left: 20px;
+        animation: none;
+      }
+      
+      .nav-item:hover .dropdown {
+        display: none;
+      }
+      
+      .user-section {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      main {
+        padding: 8px 16px 20px 16px;
+      }
+      
+      .breadcrumbs {
+        padding: 10px 16px 4px 16px;
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .nav-link {
+        font-size: 11px;
+        padding: 6px 10px;
+      }
+      
+      .user-section {
+        font-size: 12px;
+        padding: 4px 12px;
+      }
+      
+      .btn-logout {
+        padding: 4px 12px;
+        font-size: 11px;
+      }
+      
+      .breadcrumbs {
+        padding: 8px 16px 4px 16px;
+        font-size: 11px;
+      }
+      
+      main {
+        padding: 8px 16px 16px 16px;
+      }
+    }
     </style>
   </head>
 
@@ -115,7 +512,7 @@
           <%# --- MENÚ SEGURIDAD --- %>
           <% if puede_consultar?("perfil") || puede_consultar?("modulo") || puede_consultar?("permisosperfil") || puede_consultar?("usuario") %>
             <li class="nav-item">
-              <span class="nav-link">SEGURIDAD <small style="margin-left:5px">▾</small></span>
+              <span class="nav-link">SEGURIDAD <small>▾</small></span>
               <ul class="dropdown">
                 <% if puede_consultar?("perfil") %><li><%= link_to "Perfil", perfiles_path %></li><% end %>
                 <% if puede_consultar?("modulo") %><li><%= link_to "Módulo", modulos_path %></li><% end %>
@@ -128,7 +525,7 @@
           <%# --- PRINCIPAL 1 --- %>
           <% if puede_consultar?("principal1_1") || puede_consultar?("principal1_2") %>
             <li class="nav-item">
-              <span class="nav-link">PRINCIPAL 1 <small style="margin-left:5px">▾</small></span>
+              <span class="nav-link">PRINCIPAL 1 <small>▾</small></span>
               <ul class="dropdown">
                 <% if puede_consultar?("principal1_1") %><li><%= link_to "Principal 1.1", principal1_1_path %></li><% end %>
                 <% if puede_consultar?("principal1_2") %><li><%= link_to "Principal 1.2", principal1_2_path %></li><% end %>
@@ -139,7 +536,7 @@
           <%# --- PRINCIPAL 2 --- %>
           <% if puede_consultar?("principal2_1") || puede_consultar?("principal2_2") %>
             <li class="nav-item">
-              <span class="nav-link">PRINCIPAL 2 <small style="margin-left:5px">▾</small></span>
+              <span class="nav-link">PRINCIPAL 2 <small>▾</small></span>
               <ul class="dropdown">
                 <% if puede_consultar?("principal2_1") %><li><%= link_to "Principal 2.1", principal2_1_path %></li><% end %>
                 <% if puede_consultar?("principal2_2") %><li><%= link_to "Principal 2.2", principal2_2_path %></li><% end %>
@@ -149,7 +546,7 @@
 
           <%# --- OTROS MÓDULOS (DINÁMICO) --- %>
           <li class="nav-item">
-            <span class="nav-link">MÓDULOS <small style="margin-left:5px">▾</small></span>
+            <span class="nav-link">MÓDULOS <small>▾</small></span>
             <ul class="dropdown">
               <% excluidos = ['seguridad', 'perfil', 'modulo', 'permisosperfil', 'usuario', 
                               'principal1', 'principal1_1', 'principal1_2', 
@@ -170,10 +567,11 @@
 
         <div class="user-section">
           <span>Bienvenido, <span class="user-name"><%= usuario_actual.strNombreUsuario %></span></span>
-          <%= button_to "Cerrar Sesión", logout_path, method: :delete, data: { turbo: false }, class: "btn-logout" %>
+          <%= button_to "Cerrar Sesión", logout_path, method: :delete, data: { turbo: false, confirm: false }, class: "btn-logout", id: "logout-button" %>
         </div>
       </nav>
 
+      <!-- BREADCRUMBS - SIN FONDO, SIN BORDE, SIN MARGEN EXTERNO -->
       <div class="breadcrumbs">
         <%= link_to "Inicio", dashboard_path %>
 
@@ -215,8 +613,88 @@
       </div>
     <% end %>
 
-    <main style="padding: 20px;">
+    <main>
       <%= yield %>
     </main>
+
+    <!-- Modal de confirmación para cerrar sesión -->
+    <div id="logout-modal" class="modal-overlay">
+      <div class="modal-container">
+        <div class="modal-header">
+          <div class="modal-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </div>
+          <h3>Confirmar salida</h3>
+        </div>
+        <div class="modal-body">
+          ¿Estás seguro de que deseas cerrar sesión? Se cerrará tu sesión actual.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-modal-cancel" id="modal-cancel">Cancelar</button>
+          <button type="button" class="btn-modal-confirm" id="modal-confirm">Cerrar sesión</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        const logoutButton = document.getElementById('logout-button');
+        const modal = document.getElementById('logout-modal');
+        const cancelBtn = document.getElementById('modal-cancel');
+        const confirmBtn = document.getElementById('modal-confirm');
+        let logoutForm = null;
+        
+        if (logoutButton) {
+          logoutForm = logoutButton.closest('form');
+          
+          logoutButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            if (modal) {
+              modal.style.display = 'flex';
+            }
+          });
+        }
+        
+        function closeModal() {
+          if (modal) {
+            modal.style.display = 'none';
+          }
+        }
+        
+        if (cancelBtn) {
+          cancelBtn.addEventListener('click', closeModal);
+        }
+        
+        if (confirmBtn) {
+          confirmBtn.addEventListener('click', function() {
+            if (logoutForm) {
+              logoutForm.submit();
+            } else {
+              window.location.href = '<%= logout_path %>';
+            }
+          });
+        }
+        
+        if (modal) {
+          modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+              closeModal();
+            }
+          });
+        }
+        
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape' && modal && modal.style.display === 'flex') {
+            closeModal();
+          }
+        });
+      })();
+    </script>
   </body>
 </html>

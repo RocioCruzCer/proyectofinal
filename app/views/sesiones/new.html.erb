@@ -1,20 +1,35 @@
+<!-- app/views/sessions/new.html.erb -->
 <div class="login-page-wrapper">
-  
   <div class="login-card">
     <div class="login-header">
-      <h2>Iniciar Sesión</h2>
-      <p>Acceso al Panel Administrativo</p>
+      <div class="brand-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#246BD1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 17L12 22L22 17" stroke="#246BD1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 12L12 17L22 12" stroke="#7C8EF8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2>Bienvenido</h2>
+      <p>Ingresa tus credenciales para acceder al panel</p>
     </div>
 
     <div class="flash-messages">
       <% if flash[:alert] %>
         <div class="flash flash-alert">
+          <svg class="flash-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
           <%= flash[:alert] %>
         </div>
       <% end %>
 
       <% if flash[:notice] %>
         <div class="flash flash-notice">
+          <svg class="flash-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 6L9 17L4 12"/>
+          </svg>
           <%= flash[:notice] %>
         </div>
       <% end %>
@@ -23,20 +38,39 @@
     <%= form_with url: login_path, method: :post, local: true, class: "login-form" do |f| %>
       
       <div class="form-group">
-        <%= f.label :strCorreo, "Correo Electrónico" %>
-        <%= f.email_field :strCorreo, placeholder: "ejemplo@sistema.com", required: true, class: "form-input" %>
+        <%= f.label :strCorreo, "Correo electrónico" %>
+        <div class="input-wrapper">
+          <%= f.email_field :strCorreo, 
+              placeholder: "ejemplo@corporativo.com", 
+              required: true, 
+              class: "form-input",
+              autocomplete: "email" %>
+        </div>
       </div>
 
       <div class="form-group">
         <%= f.label :password, "Contraseña" %>
-        <%= f.password_field :password, placeholder: "••••••••", required: true, class: "form-input" %>
+        <div class="input-wrapper password-wrapper">
+          <%= f.password_field :password, 
+              placeholder: "••••••••", 
+              required: true, 
+              class: "form-input",
+              id: "password-field",
+              autocomplete: "current-password" %>
+          <button type="button" class="toggle-password" id="toggle-password" aria-label="Mostrar contraseña">
+            <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div class="captcha-wrapper">
         <%= recaptcha_tags callback: 'captchaCompletado', expired_callback: 'captchaExpirado' %>
       </div>
 
-      <%= f.submit "Entrar al Sistema", id: "btn-entrar", disabled: true, class: "btn-submit" %>
+      <%= f.submit "Acceder al sistema", id: "btn-entrar", disabled: true, class: "btn-submit" %>
       
     <% end %>
 
@@ -44,164 +78,430 @@
       <p>&copy; <%= Time.now.year %> Sistema Corporativo. Todos los derechos reservados.</p>
     </div>
   </div>
-
 </div>
 
 <style>
-  /* Variables de Color basadas en tu Paleta Adobe Color */
+  /* ============================================
+     VARIABLES DE COLOR (Paleta proporcionada)
+  ============================================ */
   :root {
-    --primary-blue: #1A6D8F;    /* Azul Petróleo */
-    --corporate-green: #2C6E4F; /* Verde Bosque (para éxitos) */
-    --alert-red: #8B3A3A;       /* Rojo Óxido (para errores) */
-    --gold-accent: #D9B650;     /* Dorado (detalles) */
-    --dark-text: #2C3A42;       /* Gris muy oscuro/Azulado */
-    --gray-text: #6F7B85;       /* Gris medio */
-    --bg-light: #F5F7F9;        /* Gris ultra claro (Fondo) */
+    --primary: #246BD1;      /* Azul fuerte - acciones principales */
+    --primary-dark: #1A4F9C; /* Variante oscura para hover */
+    --secondary: #7C8EF8;    /* Azul violeta - detalles y acentos */
+    --accent: #F3B0B8;       /* Rosa claro - badges y alertas suaves */
+    --success: #02900E;      /* Verde intenso - mensajes de éxito */
+    --gray-bg: #C2C7CC;      /* Gris azulado - bordes y fondos alternos */
+    --gray-light: #F8F9FC;   /* Fondo muy claro */
+    --gray-medium: #6C757D;  /* Texto secundario */
+    --gray-dark: #2C3E50;    /* Texto principal */
     --white: #FFFFFF;
-    --border-color: #E2E6EA;    /* Gris de bordes */
+    --border: #E9ECEF;
   }
 
-  /* Estilos de Estructura */
+  /* ============================================
+     TIPOGRAFÍAS MODERNAS
+  ============================================ */
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  /* ============================================
+     LAYOUT PRINCIPAL
+  ============================================ */
   .login-page-wrapper {
-    background-color: var(--bg-light);
+    background: linear-gradient(135deg, #F8F9FC 0%, #E9ECEF 100%);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
+    font-family: 'Montserrat', sans-serif;
     padding: 20px;
+    position: relative;
+    overflow: hidden;
   }
 
+  /* Decoración de fondo sutil */
+  .login-page-wrapper::before {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(124,142,248,0.03) 0%, rgba(124,142,248,0) 70%);
+    top: -150px;
+    right: -150px;
+    border-radius: 50%;
+  }
+
+  .login-page-wrapper::after {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(36,107,209,0.03) 0%, rgba(36,107,209,0) 70%);
+    bottom: -200px;
+    left: -200px;
+    border-radius: 50%;
+  }
+
+  /* ============================================
+     TARJETA DE LOGIN
+  ============================================ */
   .login-card {
-    background-color: var(--white);
+    background: var(--white);
     width: 100%;
-    max-width: 420px;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 15px 35px rgba(44, 58, 66, 0.1); /* Sombra basada en #2C3A42 */
-    border-top: 6px solid var(--primary-blue);
+    max-width: 460px;
+    padding: 48px 40px 40px;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.02);
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
 
-  /* Tipografía */
+  .login-card:hover {
+    box-shadow: 0 25px 50px rgba(36, 107, 209, 0.08);
+  }
+
+  /* ============================================
+     HEADER
+  ============================================ */
   .login-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 36px;
+  }
+
+  .brand-icon {
+    margin-bottom: 20px;
+    display: inline-block;
+  }
+
+  .brand-icon svg {
+    filter: drop-shadow(0 2px 4px rgba(36, 107, 209, 0.1));
   }
 
   .login-header h2 {
-    color: var(--dark-text);
+    font-family: 'Poppins', sans-serif;
+    color: var(--gray-dark);
     margin: 0;
-    font-size: 26px;
-    font-weight: 700;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
   }
 
   .login-header p {
-    color: var(--gray-text);
-    margin: 8px 0 0;
+    color: var(--gray-medium);
+    margin: 10px 0 0;
     font-size: 14px;
+    font-weight: 500;
   }
 
-  /* Campos de Formulario */
+  /* ============================================
+     FLASH MESSAGES
+  ============================================ */
+  .flash-messages {
+    margin-bottom: 28px;
+  }
+
+  .flash {
+    padding: 14px 16px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .flash-icon {
+    flex-shrink: 0;
+  }
+
+  .flash-alert {
+    background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+    color: #DC2626;
+    border-left: 3px solid #DC2626;
+  }
+
+  .flash-notice {
+    background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+    color: var(--success);
+    border-left: 3px solid var(--success);
+  }
+
+  /* ============================================
+     FORMULARIO
+  ============================================ */
+  .login-form {
+    margin-top: 8px;
+  }
+
   .form-group {
-    margin-bottom: 22px;
+    margin-bottom: 24px;
   }
 
   .form-group label {
     display: block;
     font-weight: 600;
-    font-size: 14px;
-    color: var(--dark-text);
+    font-size: 13px;
+    color: var(--gray-dark);
     margin-bottom: 8px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+
+  .input-wrapper {
+    position: relative;
+    width: 100%;
   }
 
   .form-input {
     width: 100%;
-    padding: 12px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    font-size: 15px;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-    background-color: #FAFAFA;
+    padding: 14px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.2s ease;
+    background-color: var(--gray-light);
+    color: var(--gray-dark);
   }
 
   .form-input:focus {
     outline: none;
-    border-color: var(--primary-blue);
+    border-color: var(--primary);
     background-color: var(--white);
-    box-shadow: 0 0 0 3px rgba(26, 109, 143, 0.1);
+    box-shadow: 0 0 0 3px rgba(36, 107, 209, 0.08);
   }
 
-  /* Mensajes de Alerta */
-  .flash {
-    padding: 12px 15px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-    font-size: 14px;
-    text-align: center;
-    color: var(--white);
+  .form-input::placeholder {
+    color: #ADB5BD;
+    font-weight: 400;
   }
-  .flash-alert { background-color: var(--alert-red); }
-  .flash-notice { background-color: var(--corporate-green); }
 
-  /* Captcha */
+  /* Password toggle button */
+  .password-wrapper {
+    position: relative;
+  }
+
+  .toggle-password {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    color: var(--gray-medium);
+  }
+
+  .toggle-password:hover {
+    background-color: rgba(124, 142, 248, 0.1);
+    color: var(--secondary);
+  }
+
+  .toggle-password:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(124, 142, 248, 0.3);
+  }
+
+  .eye-icon {
+    transition: transform 0.2s ease;
+  }
+
+  .toggle-password:hover .eye-icon {
+    transform: scale(1.05);
+  }
+
+  /* ============================================
+     CAPTCHA
+  ============================================ */
   .captcha-wrapper {
-    margin: 25px 0;
+    margin: 24px 0 28px;
     display: flex;
     justify-content: center;
+    background: var(--gray-light);
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
   }
 
-  /* Botón de Envío */
+  /* Ajuste para el iframe de reCAPTCHA */
+  .captcha-wrapper > div {
+    margin: 0 auto;
+  }
+
+  /* ============================================
+     BOTÓN
+  ============================================ */
   .btn-submit {
     width: 100%;
-    padding: 14px;
-    background-color: var(--primary-blue);
+    padding: 14px 20px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     color: white;
     border: none;
-    border-radius: 6px;
-    font-size: 16px;
+    border-radius: 12px;
+    font-size: 15px;
     font-weight: 600;
+    font-family: 'Poppins', sans-serif;
     letter-spacing: 0.5px;
     cursor: not-allowed;
     opacity: 0.5;
     transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
   }
 
   .btn-submit:not([disabled]) {
     cursor: pointer;
     opacity: 1;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   }
 
   .btn-submit:not([disabled]):hover {
-    background-color: #145672; /* Un tono más oscuro del azul original */
-    transform: translateY(-1px);
-    box-shadow: 0 5px 15px rgba(26, 109, 143, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(36, 107, 209, 0.3);
   }
 
   .btn-submit:not([disabled]):active {
     transform: translateY(0);
   }
 
+  /* Efecto ripple opcional */
+  .btn-submit:not([disabled])::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .btn-submit:not([disabled]):active::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  /* ============================================
+     FOOTER
+  ============================================ */
   .login-footer {
-    margin-top: 30px;
+    margin-top: 32px;
     text-align: center;
-    border-top: 1px solid var(--border-color);
-    padding-top: 20px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
   }
 
   .login-footer p {
-    font-size: 12px;
-    color: var(--gray-text);
+    font-size: 11px;
+    color: var(--gray-medium);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+
+  /* ============================================
+     RESPONSIVE
+  ============================================ */
+  @media (max-width: 520px) {
+    .login-card {
+      padding: 36px 24px 32px;
+      margin: 0 16px;
+    }
+
+    .login-header h2 {
+      font-size: 24px;
+    }
+
+    .form-input {
+      padding: 12px 14px;
+    }
+
+    .btn-submit {
+      padding: 12px 16px;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .login-card {
+      padding: 28px 20px 24px;
+    }
+
+    .brand-icon svg {
+      width: 36px;
+      height: 36px;
+    }
   }
 </style>
 
 <script>
+  // Función para el toggle de la contraseña
+  document.addEventListener('DOMContentLoaded', function() {
+    const toggleButton = document.getElementById('toggle-password');
+    const passwordField = document.getElementById('password-field');
+    
+    if (toggleButton && passwordField) {
+      let isPasswordVisible = false;
+      
+      toggleButton.addEventListener('click', function() {
+        isPasswordVisible = !isPasswordVisible;
+        
+        if (isPasswordVisible) {
+          passwordField.type = 'text';
+          // Cambiar el ícono a "ojo cerrado"
+          toggleButton.innerHTML = `
+            <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+              <line x1="3" y1="3" x2="21" y2="21"/>
+            </svg>
+          `;
+          toggleButton.setAttribute('aria-label', 'Ocultar contraseña');
+        } else {
+          passwordField.type = 'password';
+          // Restaurar ícono de "ojo abierto"
+          toggleButton.innerHTML = `
+            <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          `;
+          toggleButton.setAttribute('aria-label', 'Mostrar contraseña');
+        }
+      });
+    }
+  });
+
+  // Funciones para reCAPTCHA
   function captchaCompletado() {
     const boton = document.getElementById('btn-entrar');
     if (boton) {
       boton.disabled = false;
-      // No necesitamos cambiar estilos manualmente, el CSS :not([disabled]) se encarga
     }
   }
 
