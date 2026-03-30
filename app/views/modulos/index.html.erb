@@ -1,99 +1,628 @@
-<div style="font-family: sans-serif; padding: 20px;">
+<div class="modulos-wrapper">
   
-  <h2>Gestión de Módulos</h2>
-  
-  <%# --- BOTÓN AGREGAR: Solo se muestra si el perfil tiene bitAgregar en true --- %>
-  <% if puede_agregar?("modulo") %>
-    <button id="btnNuevo" style="padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; margin-bottom: 15px; border-radius: 4px;">
-      + Nuevo Módulo
-    </button>
-  <% end %>
-
-  <%# --- FORMULARIO OCULTO PARA CREAR / EDITAR --- %>
-  <div id="formularioModulo" style="display: none; background-color: #f4f4f4; padding: 15px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px;">
-    <h3 id="formTitulo" style="margin-top: 0;">Crear Módulo</h3>
-    <input type="hidden" id="moduloId">
-    
-    <label style="font-weight: bold;">Nombre del Módulo:</label><br>
-    <input type="text" id="strNombreModulo" style="width: 100%; max-width: 400px; padding: 8px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;" required>
-    
-    <br>
-    <button id="btnGuardar" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Guardar</button>
-    <button id="btnCancelar" style="padding: 8px 15px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+  <!-- Cabecera -->
+  <div class="modulos-header">
+    <h1>Gestión de Módulos</h1>
+    <p>Administra los módulos y funcionalidades del sistema</p>
   </div>
 
-  <%# --- TABLA DE DATOS --- %>
-  <table border="1" width="100%" cellspacing="0" cellpadding="10" style="text-align: left; border-collapse: collapse; background-color: white;">
-    <thead style="background-color: #1a3c5b; color: white;">
-      <tr>
-        <th style="width: 10%;">ID</th>
-        <th style="width: 50%;">Nombre del Módulo</th>
-        <th style="width: 40%;">Acciones</th>
-      </tr>
-    </thead>
-    <tbody id="tablaModulosCuerpo">
-      </tbody>
-  </table>
+  <!-- Botón Nuevo Módulo -->
+  <% if puede_agregar?("modulo") %>
+    <div class="action-bar">
+      <button id="btnNuevo" class="btn-new">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Nuevo Módulo
+      </button>
+    </div>
+  <% end %>
 
-  <%# --- PAGINACIÓN --- %>
-  <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center; background-color: #e9ecef; padding: 10px; border-radius: 5px;">
-    <button id="btnAnterior" style="padding: 6px 12px; cursor: pointer; border: 1px solid #ccc; background-color: white; border-radius: 4px;">◀ Anterior</button>
-    <strong id="textoPaginacion">Página 1</strong>
-    <button id="btnSiguiente" style="padding: 6px 12px; cursor: pointer; border: 1px solid #ccc; background-color: white; border-radius: 4px;">Siguiente ▶</button>
+  <!-- Tabla de módulos -->
+  <div class="table-container">
+    <table class="modulos-table">
+      <thead>
+        <tr>
+          <th>Nombre del Módulo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tablaModulosCuerpo">
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination-container">
+    <button id="btnPrimero" class="pagination-btn" title="Primera página">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M11 17L6 12l5-5M18 17l-5-5 5-5"/>
+      </svg>
+    </button>
+    <button id="btnAnterior" class="pagination-btn" title="Página anterior">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+      Anterior
+    </button>
+    <span id="textoPaginacion" class="pagination-info">Página 1</span>
+    <button id="btnSiguiente" class="pagination-btn" title="Página siguiente">
+      Siguiente
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </button>
+    <button id="btnUltimo" class="pagination-btn" title="Última página">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M13 17l5-5-5-5M6 17l5-5-5-5"/>
+      </svg>
+    </button>
   </div>
 </div>
 
-<%# --- SCRIPTS PARA FETCH API Y MANIPULACIÓN DEL DOM --- %>
+<!-- Modal flotante para el formulario -->
+<div id="modalModulo" class="modal-overlay">
+  <div class="modal-container">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="formTitulo">Crear Nuevo Módulo</h3>
+        <button id="btnCerrarModal" class="modal-close" title="Cerrar">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <input type="hidden" id="moduloId">
+        
+        <div class="form-group">
+          <label for="strNombreModulo">Nombre del Módulo</label>
+          <input type="text" id="strNombreModulo" class="form-input" placeholder="Ej: Ventas, Inventario, Facturación, Reportes" required autocomplete="off">
+          <span class="input-hint">Ingrese un nombre descriptivo para el módulo</span>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button id="btnGuardar" class="btn-primary">Guardar Módulo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Variables de color */
+  :root {
+    --primary: #246BD1;
+    --primary-dark: #1A4F9C;
+    --secondary: #7C8EF8;
+    --accent: #F3B0B8;
+    --success: #02900E;
+    --success-light: #95BFA1;
+    --gray-bg: #C2C7CC;
+    --gray-light: #F8F9FC;
+    --gray-medium: #6C757D;
+    --gray-dark: #2C3E50;
+    --white: #FFFFFF;
+    --border: #E9ECEF;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-modal: 0 25px 50px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Tipografías */
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+  .modulos-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  /* Cabecera */
+  .modulos-header {
+    margin-bottom: 32px;
+  }
+
+  .modulos-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    color: var(--gray-dark);
+    margin: 0 0 8px 0;
+  }
+
+  .modulos-header p {
+    font-size: 14px;
+    color: var(--gray-medium);
+    margin: 0;
+  }
+
+  /* Action Bar */
+  .action-bar {
+    margin-bottom: 24px;
+  }
+
+  .btn-new {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+  }
+
+  .btn-new:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  /* Tabla */
+  .table-container {
+    background: var(--white);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+    margin-bottom: 24px;
+  }
+
+  .modulos-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .modulos-table thead {
+    background: linear-gradient(135deg, var(--gray-dark) 0%, #1F2A33 100%);
+  }
+
+  .modulos-table th {
+    padding: 16px 20px;
+    text-align: left;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  .modulos-table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--gray-dark);
+  }
+
+  .modulos-table tbody tr:hover {
+    background: var(--gray-light);
+  }
+
+  .modulos-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* Botones de acción */
+  .btn-action {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    margin-right: 8px;
+  }
+
+  .btn-edit {
+    background: rgba(124, 142, 248, 0.1);
+    color: var(--secondary);
+  }
+
+  .btn-edit:hover {
+    background: var(--secondary);
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .btn-delete {
+    background: rgba(243, 176, 184, 0.1);
+    color: var(--accent);
+  }
+
+  .btn-delete:hover {
+    background: var(--accent);
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .no-actions {
+    color: var(--gray-medium);
+    font-size: 12px;
+  }
+
+  /* Paginación */
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-dark);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .pagination-btn:hover:not(:disabled) {
+    background: var(--gray-light);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pagination-info {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-dark);
+    padding: 0 8px;
+  }
+
+  /* Mensaje vacío */
+  .empty-row td {
+    text-align: center;
+    padding: 40px !important;
+    color: var(--gray-medium);
+  }
+
+  /* ============================================
+     MODAL FLOTANTE
+  ============================================ */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      backdrop-filter: blur(0);
+    }
+    to {
+      opacity: 1;
+      backdrop-filter: blur(8px);
+    }
+  }
+
+  .modal-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: modalSlideUp 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+  }
+
+  @keyframes modalSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .modal-card {
+    background: var(--white);
+    border-radius: 32px;
+    width: 600px;
+    max-width: 90vw;
+    overflow: hidden;
+    box-shadow: var(--shadow-modal);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-sizing: border-box;
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, var(--gray-light) 0%, #FFFFFF 100%);
+    padding: 28px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-header h3 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    color: var(--gray-dark);
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: var(--gray-medium);
+  }
+
+  .modal-close:hover {
+    background: var(--gray-light);
+    color: var(--primary);
+    transform: rotate(90deg);
+  }
+
+  .modal-body {
+    padding: 32px;
+  }
+
+  .form-group {
+    margin-bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-dark);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    font-size: 15px;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.2s;
+    background: var(--gray-light);
+    box-sizing: border-box;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--white);
+    box-shadow: 0 0 0 4px rgba(36, 107, 209, 0.08);
+  }
+
+  .input-hint {
+    display: block;
+    font-size: 12px;
+    color: var(--gray-medium);
+    margin-top: 8px;
+  }
+
+  .modal-footer {
+    padding: 24px 32px 32px;
+    border-top: 1px solid var(--border);
+    background: var(--gray-light);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    display: block;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(36, 107, 209, 0.3);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .modulos-wrapper {
+      padding: 20px;
+    }
+
+    .modulos-table th,
+    .modulos-table td {
+      padding: 12px 16px;
+    }
+
+    .btn-action {
+      padding: 4px 10px;
+      font-size: 11px;
+    }
+
+    .modal-card {
+      width: 90vw;
+    }
+
+    .modal-header {
+      padding: 22px 24px;
+    }
+
+    .modal-header h3 {
+      font-size: 20px;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .modal-footer {
+      padding: 20px 24px 24px;
+    }
+
+    .form-input {
+      padding: 12px 16px;
+      font-size: 14px;
+    }
+
+    .pagination-container {
+      gap: 8px;
+    }
+
+    .pagination-btn {
+      padding: 6px 12px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .modulos-wrapper {
+      padding: 16px;
+    }
+
+    .modulos-header h1 {
+      font-size: 24px;
+    }
+
+    .btn-new {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .modal-header {
+      padding: 18px 20px;
+    }
+
+    .modal-header h3 {
+      font-size: 18px;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .form-group label {
+      font-size: 13px;
+    }
+
+    .form-input {
+      padding: 12px 14px;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      padding: 12px 24px;
+      font-size: 14px;
+    }
+
+    .pagination-container {
+      gap: 6px;
+    }
+
+    .pagination-btn {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .pagination-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+</style>
+
 <script>
   document.addEventListener("turbo:load", function() {
     let paginaActual = 1;
-    
-    const metaCsrf = document.querySelector('meta[name="csrf-token"]');
-    if (!metaCsrf) return; 
-    const csrfToken = metaCsrf.content;
+    let totalPaginas = 1;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
     const cuerpoTabla = document.getElementById("tablaModulosCuerpo");
-    const formulario = document.getElementById("formularioModulo");
+    const modal = document.getElementById("modalModulo");
     const inputId = document.getElementById("moduloId");
     const inputNombre = document.getElementById("strNombreModulo");
     const tituloForm = document.getElementById("formTitulo");
     const btnNuevo = document.getElementById("btnNuevo");
+    const btnCerrarModal = document.getElementById("btnCerrarModal");
+    const btnPrimero = document.getElementById("btnPrimero");
+    const btnUltimo = document.getElementById("btnUltimo");
 
-    // 1. CARGAR DATOS (Fetch API GET)
     function cargarModulos(pagina) {
       fetch(`/modulos.json?page=${pagina}&nocache=${Date.now()}`)
         .then(response => response.json())
         .then(data => {
-          cuerpoTabla.innerHTML = ""; 
+          cuerpoTabla.innerHTML = "";
+          totalPaginas = data.total_paginas || 1;
           
           if(data.modulos.length === 0) {
-            cuerpoTabla.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No hay módulos registrados.</td></tr>";
+            cuerpoTabla.innerHTML = `<tr class="empty-row"><td colspan="2">No hay módulos registrados</td></tr>`;
           }
 
-          // 🚨 LECTURA DE PERMISOS DESDE EL CONTROLADOR 🚨
           const permisoEditar = data.permisos.editar;
           const permisoEliminar = data.permisos.eliminar;
 
           data.modulos.forEach(modulo => {
             let botonesHtml = "";
             
-            // 🚨 CREACIÓN DINÁMICA DE BOTONES SEGÚN PERMISOS 🚨
             if (permisoEditar) {
-              botonesHtml += `<button onclick="editarModulo(${modulo.id}, '${modulo.strNombreModulo}')" style="background-color: #ffc107; color: black; border:none; padding:6px 12px; cursor:pointer; margin-right:5px; border-radius:4px;">Editar</button>`;
+              botonesHtml += `<button onclick="editarModulo(${modulo.id}, '${escapeHtml(modulo.strNombreModulo)}')" class="btn-action btn-edit">Editar</button>`;
             }
             
             if (permisoEliminar) {
-              botonesHtml += `<button onclick="eliminarModulo(${modulo.id})" style="background-color: #dc3545; color:white; border:none; padding:6px 12px; cursor:pointer; border-radius:4px;">Eliminar</button>`;
+              botonesHtml += `<button onclick="eliminarModulo(${modulo.id})" class="btn-action btn-delete">Eliminar</button>`;
             }
 
             if (botonesHtml === "") {
-              botonesHtml = "<span style='color: #888; font-style: italic;'>Sin acciones permitidas</span>";
+              botonesHtml = "<span class='no-actions'>Sin acciones</span>";
             }
 
             const fila = document.createElement("tr");
             fila.innerHTML = `
-              <td>${modulo.id}</td>
-              <td>${modulo.strNombreModulo}</td>
+              <td><strong>${escapeHtml(modulo.strNombreModulo)}</strong></td>
               <td>${botonesHtml}</td>
             `;
             cuerpoTabla.appendChild(fila);
@@ -102,31 +631,80 @@
           document.getElementById("textoPaginacion").innerText = `Página ${data.pagina_actual} de ${data.total_paginas || 1}`;
           document.getElementById("btnAnterior").disabled = data.pagina_actual <= 1;
           document.getElementById("btnSiguiente").disabled = data.pagina_actual >= (data.total_paginas || 1);
+          document.getElementById("btnPrimero").disabled = data.pagina_actual <= 1;
+          document.getElementById("btnUltimo").disabled = data.pagina_actual >= (data.total_paginas || 1);
           paginaActual = data.pagina_actual;
         })
         .catch(error => console.error("Error cargando módulos:", error));
     }
 
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function abrirModal() {
+      modal.style.display = "flex";
+      document.body.style.overflow = "hidden";
+    }
+
+    function cerrarModal() {
+      modal.style.display = "none";
+      document.body.style.overflow = "";
+    }
+
     cargarModulos(paginaActual);
 
-    document.getElementById("btnAnterior").addEventListener("click", () => cargarModulos(paginaActual - 1));
-    document.getElementById("btnSiguiente").addEventListener("click", () => cargarModulos(paginaActual + 1));
-
-    // 2. MOSTRAR FORMULARIO
-    if (btnNuevo) {
-      btnNuevo.addEventListener("click", () => {
-        tituloForm.innerText = "Crear Módulo";
-        inputId.value = "";
-        inputNombre.value = "";
-        formulario.style.display = "block";
+    // Eventos de paginación
+    if (btnPrimero) {
+      btnPrimero.addEventListener("click", () => {
+        if (paginaActual > 1) cargarModulos(1);
+      });
+    }
+    document.getElementById("btnAnterior").addEventListener("click", () => {
+      if (paginaActual > 1) cargarModulos(paginaActual - 1);
+    });
+    document.getElementById("btnSiguiente").addEventListener("click", () => {
+      if (paginaActual < totalPaginas) cargarModulos(paginaActual + 1);
+    });
+    if (btnUltimo) {
+      btnUltimo.addEventListener("click", () => {
+        if (paginaActual < totalPaginas) cargarModulos(totalPaginas);
       });
     }
 
-    document.getElementById("btnCancelar").addEventListener("click", () => {
-      formulario.style.display = "none";
+    // Abrir modal al hacer clic en Nuevo Módulo
+    if (btnNuevo) {
+      btnNuevo.addEventListener("click", () => {
+        tituloForm.innerText = "Crear Nuevo Módulo";
+        inputId.value = "";
+        inputNombre.value = "";
+        abrirModal();
+      });
+    }
+
+    // Cerrar modal con la X
+    if (btnCerrarModal) {
+      btnCerrarModal.addEventListener("click", cerrarModal);
+    }
+
+    // Cerrar modal al hacer clic fuera
+    modal.addEventListener("click", function(e) {
+      if (e.target === modal) {
+        cerrarModal();
+      }
     });
 
-    // 3. GUARDAR / ACTUALIZAR
+    // Cerrar modal con tecla Escape
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape" && modal.style.display === "flex") {
+        cerrarModal();
+      }
+    });
+
+    // Guardar módulo
     document.getElementById("btnGuardar").addEventListener("click", () => {
       const nombre = inputNombre.value.trim();
       
@@ -152,8 +730,8 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          formulario.style.display = "none";
-          cargarModulos(paginaActual); 
+          cerrarModal();
+          cargarModulos(paginaActual);
         } else {
           alert("Error: " + (data.errors ? data.errors.join(", ") : "Permiso denegado"));
         }
@@ -161,17 +739,15 @@
       .catch(error => console.error("Error al guardar:", error));
     });
 
-    // 4. PREPARAR EDICIÓN
     window.editarModulo = function(id, nombre) {
       tituloForm.innerText = "Editar Módulo";
       inputId.value = id;
       inputNombre.value = nombre;
-      formulario.style.display = "block";
+      abrirModal();
     };
 
-    // 5. ELIMINAR
     window.eliminarModulo = function(id) {
-      if (confirm("¿Estás seguro de eliminar este módulo?")) {
+      if (confirm("¿Estás seguro de eliminar este módulo? Esta acción no se puede deshacer.")) {
         fetch(`/modulos/${id}.json`, {
           method: "DELETE",
           headers: {

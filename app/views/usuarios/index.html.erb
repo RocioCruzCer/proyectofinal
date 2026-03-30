@@ -1,122 +1,863 @@
-<div style="font-family: sans-serif; padding: 20px;">
-  <h2>Gestión de Usuarios</h2>
+<div class="usuarios-wrapper">
   
-  <div style="background-color: white; padding: 15px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px; display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
-    <div style="flex: 1; min-width: 200px;">
-      <label style="color: #666; font-size: 14px;">Usuario:</label><br>
-      <input type="text" id="filtroUsuario" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-    </div>
-    <div style="flex: 1; min-width: 200px;">
-      <label style="color: #666; font-size: 14px;">Perfil:</label><br>
-      <select id="filtroPerfil" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-        <option value="">Todos</option>
-      </select>
-    </div>
-    <div style="flex: 1; min-width: 200px;">
-      <label style="color: #666; font-size: 14px;">Estado:</label><br>
-      <select id="filtroEstado" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-        <option value="">Todos</option>
-        <option value="1">Activo</option>
-        <option value="2">Inactivo</option>
-      </select>
-    </div>
-    <div>
-      <button id="btnBuscar" style="padding: 9px 20px; background-color: #4da3ff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Buscar</button>
-      <button id="btnLimpiar" style="padding: 9px 20px; background-color: #6fb4ff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left: 5px;">Limpiar</button>
-    </div>
+  <!-- Cabecera -->
+  <div class="usuarios-header">
+    <h1>Gestión de Usuarios</h1>
+    <p>Administra los usuarios del sistema y sus credenciales de acceso</p>
   </div>
-  <%# 1. BLOQUEO RUBY: El botón + Nuevo solo sale si tiene permiso Agregar %>
-  <% if puede_agregar?("usuario") %>
-    <button id="btnNuevo" style="padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 15px;">
-      Nuevo Usuario
-    </button>
-  <% end %>
 
-  <div id="formularioUsuario" style="display: none; background-color: #f4f4f4; padding: 15px; border: 1px solid #ddd; margin-bottom: 20px;">
-    <h3 id="formTitulo">Crear Usuario</h3>
-    <input type="hidden" id="usuarioId">
-    
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-      <div>
-        <label>Nombre Completo:</label><br>
-        <input type="text" id="strNombreUsuario" style="width: 100%; padding: 8px;">
+  <!-- Filtros -->
+  <div class="filtros-card">
+    <div class="filtros-grid">
+      <div class="filtro-group">
+        <label>Usuario</label>
+        <input type="text" id="filtroUsuario" class="form-input" placeholder="Buscar por nombre...">
       </div>
-      <div>
-        <label>Correo Electrónico:</label><br>
-        <input type="email" id="strCorreo" style="width: 100%; padding: 8px;">
+      <div class="filtro-group">
+        <label>Perfil</label>
+        <select id="filtroPerfil" class="form-select">
+          <option value="">Todos</option>
+        </select>
       </div>
-      <div>
-        <label>Celular:</label><br>
-        <input type="text" id="strNumeroCelular" style="width: 100%; padding: 8px;">
-      </div>
-      <div>
-        <label>Contraseña:</label><br>
-        <input type="password" id="password" placeholder="Mín. 6 caracteres" style="width: 100%; padding: 8px;">
-      </div>
-      <div>
-        <label>Perfil:</label><br>
-        <select id="idPerfil" style="width: 100%; padding: 8px;"></select>
-      </div>
-      <div>
-        <label>Estado:</label><br>
-        <select id="idEstadoUsuario" style="width: 100%; padding: 8px;">
+      <div class="filtro-group">
+        <label>Estado</label>
+        <select id="filtroEstado" class="form-select">
+          <option value="">Todos</option>
           <option value="1">Activo</option>
           <option value="2">Inactivo</option>
         </select>
       </div>
-      <div style="grid-column: span 2;">
-        <label>Foto de Perfil:</label><br>
-        <input type="file" id="foto_perfil" accept="image/*" style="padding: 8px;">
+      <div class="filtro-actions">
+        <button id="btnBuscar" class="btn-search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Buscar
+        </button>
+        <button id="btnLimpiar" class="btn-secondary">Limpiar</button>
       </div>
     </div>
-    <br>
-    <button id="btnGuardar" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; cursor: pointer;">Guardar</button>
-    <button id="btnCancelar" style="padding: 8px 15px; background-color: #6c757d; color: white; border: none; cursor: pointer;">Cancelar</button>
   </div>
 
-  <p style="font-weight: bold;">[Resultados]</p>
+  <!-- Botón Nuevo Usuario -->
+  <% if puede_agregar?("usuario") %>
+    <div class="action-bar">
+      <button id="btnNuevo" class="btn-new">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Nuevo Usuario
+      </button>
+    </div>
+  <% end %>
 
-  <table border="1" width="100%" style="border-collapse: collapse; text-align: left;">
-    <thead style="background-color: #1a3c5b; color: white;">
-      <tr>
-        <th>Foto</th>
-        <th>Nombre</th>
-        <th>Correo</th>
-        <th>Perfil</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody id="tablaUsuariosCuerpo"></tbody>
-  </table>
+  <!-- Tabla de usuarios -->
+  <div class="table-container">
+    <table class="usuarios-table">
+      <thead>
+        <tr>
+          <th>Foto</th>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Perfil</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </thead>
+      <tbody id="tablaUsuariosCuerpo">
+      </tbody>
+    </table>
+  </div>
 
-  <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
-    <button id="btnAnterior" style="padding: 5px 10px; cursor: pointer;">◀ Anterior</button>
-    <span id="textoPaginacion"></span>
-    <button id="btnSiguiente" style="padding: 5px 10px; cursor: pointer;">Siguiente ▶</button>
+  <!-- Paginación -->
+  <div class="pagination-container">
+    <button id="btnPrimero" class="pagination-btn" title="Primera página">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M11 17L6 12l5-5M18 17l-5-5 5-5"/>
+      </svg>
+    </button>
+    <button id="btnAnterior" class="pagination-btn" title="Página anterior">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+      Anterior
+    </button>
+    <span id="textoPaginacion" class="pagination-info">Página 1</span>
+    <button id="btnSiguiente" class="pagination-btn" title="Página siguiente">
+      Siguiente
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </button>
+    <button id="btnUltimo" class="pagination-btn" title="Última página">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M13 17l5-5-5-5M6 17l5-5-5-5"/>
+      </svg>
+    </button>
   </div>
 </div>
+
+<!-- Modal flotante para el formulario -->
+<div id="modalUsuario" class="modal-overlay">
+  <div class="modal-container">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="formTitulo">Crear Nuevo Usuario</h3>
+        <button id="btnCerrarModal" class="modal-close" title="Cerrar">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <input type="hidden" id="usuarioId">
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="strNombreUsuario">Nombre Completo</label>
+            <input type="text" id="strNombreUsuario" class="form-input" placeholder="Ej: Juan Pérez García" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="strCorreo">Correo Electrónico</label>
+            <input type="email" id="strCorreo" class="form-input" placeholder="ejemplo@corporativo.com" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="strNumeroCelular">Celular</label>
+            <input type="text" id="strNumeroCelular" class="form-input" placeholder="+52 123 456 7890">
+          </div>
+          
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" class="form-input" placeholder="Mínimo 6 caracteres">
+            <span class="input-hint">Dejar en blanco para mantener la contraseña actual</span>
+          </div>
+          
+          <div class="form-group">
+            <label for="idPerfil">Perfil</label>
+            <select id="idPerfil" class="form-select" required>
+              <option value="">Seleccione un perfil...</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="idEstadoUsuario">Estado</label>
+            <select id="idEstadoUsuario" class="form-select">
+              <option value="1">Activo</option>
+              <option value="2">Inactivo</option>
+            </select>
+          </div>
+          
+          <div class="form-group full-width">
+            <label for="foto_perfil">Foto de Perfil</label>
+            <div class="file-input-wrapper">
+              <input type="file" id="foto_perfil" accept="image/*" class="file-input">
+              <div class="file-input-label">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+                <span>Seleccionar imagen</span>
+              </div>
+              <span class="file-name" id="file-name">Ningún archivo seleccionado</span>
+            </div>
+            <span class="input-hint">Formatos permitidos: JPG, PNG, GIF. Máx 5MB</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button id="btnGuardar" class="btn-primary">Guardar Usuario</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Variables de color */
+  :root {
+    --primary: #246BD1;
+    --primary-dark: #1A4F9C;
+    --secondary: #7C8EF8;
+    --accent: #F3B0B8;
+    --success: #02900E;
+    --success-light: #95BFA1;
+    --gray-bg: #C2C7CC;
+    --gray-light: #F8F9FC;
+    --gray-medium: #6C757D;
+    --gray-dark: #2C3E50;
+    --white: #FFFFFF;
+    --border: #E9ECEF;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-modal: 0 25px 50px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Tipografías */
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+  .usuarios-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  /* Cabecera */
+  .usuarios-header {
+    margin-bottom: 32px;
+  }
+
+  .usuarios-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    color: var(--gray-dark);
+    margin: 0 0 8px 0;
+  }
+
+  .usuarios-header p {
+    font-size: 14px;
+    color: var(--gray-medium);
+    margin: 0;
+  }
+
+  /* Filtros Card */
+  .filtros-card {
+    background: linear-gradient(135deg, var(--gray-light) 0%, #FFFFFF 100%);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .filtros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    align-items: flex-end;
+  }
+
+  .filtro-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .filtro-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-dark);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-input, .form-select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.2s;
+    background: var(--white);
+  }
+
+  .form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(36, 107, 209, 0.08);
+  }
+
+  .filtro-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-search {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-search:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .btn-secondary {
+    background: var(--gray-light);
+    color: var(--gray-medium);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover {
+    background: var(--border);
+  }
+
+  /* Action Bar */
+  .action-bar {
+    margin-bottom: 24px;
+  }
+
+  .btn-new {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+  }
+
+  .btn-new:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  /* Tabla */
+  .table-container {
+    background: var(--white);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+    margin-bottom: 24px;
+  }
+
+  .usuarios-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .usuarios-table thead {
+    background: linear-gradient(135deg, var(--gray-dark) 0%, #1F2A33 100%);
+  }
+
+  .usuarios-table th {
+    padding: 16px 20px;
+    text-align: left;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  .usuarios-table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--gray-dark);
+    vertical-align: middle;
+  }
+
+  .usuarios-table tbody tr:hover {
+    background: var(--gray-light);
+  }
+
+  .usuarios-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* Avatar en tabla */
+  .avatar-cell {
+    text-align: center;
+  }
+
+  .avatar-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary);
+  }
+
+  .avatar-placeholder-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gray-bg) 0%, var(--gray-light) 100%);
+    margin: 0 auto;
+  }
+
+  /* Badges */
+  .badge-active {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(2, 144, 14, 0.12);
+    color: var(--success);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge-inactive {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(108, 117, 125, 0.12);
+    color: var(--gray-medium);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* Botones de acción */
+  .btn-action {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    margin-right: 8px;
+  }
+
+  .btn-edit {
+    background: rgba(124, 142, 248, 0.1);
+    color: var(--secondary);
+  }
+
+  .btn-edit:hover {
+    background: var(--secondary);
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .btn-delete {
+    background: rgba(243, 176, 184, 0.1);
+    color: var(--accent);
+  }
+
+  .btn-delete:hover {
+    background: var(--accent);
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .no-actions {
+    color: var(--gray-medium);
+    font-size: 12px;
+  }
+
+  /* Paginación */
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-dark);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .pagination-btn:hover:not(:disabled) {
+    background: var(--gray-light);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pagination-info {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-dark);
+    padding: 0 8px;
+  }
+
+  /* Mensaje vacío */
+  .empty-row td {
+    text-align: center;
+    padding: 60px !important;
+    color: var(--gray-medium);
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      backdrop-filter: blur(0);
+    }
+    to {
+      opacity: 1;
+      backdrop-filter: blur(8px);
+    }
+  }
+
+  .modal-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: modalSlideUp 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+  }
+
+  @keyframes modalSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .modal-card {
+    background: var(--white);
+    border-radius: 32px;
+    width: 800px;
+    max-width: 90vw;
+    overflow: hidden;
+    box-shadow: var(--shadow-modal);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-sizing: border-box;
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, var(--gray-light) 0%, #FFFFFF 100%);
+    padding: 28px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-header h3 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    color: var(--gray-dark);
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: var(--gray-medium);
+  }
+
+  .modal-close:hover {
+    background: var(--gray-light);
+    color: var(--primary);
+    transform: rotate(90deg);
+  }
+
+  .modal-body {
+    padding: 32px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group.full-width {
+    grid-column: span 2;
+  }
+
+  .form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-dark);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .input-hint {
+    font-size: 11px;
+    color: var(--gray-medium);
+    margin-top: 6px;
+  }
+
+  /* File Input */
+  .file-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .file-input {
+    display: none;
+  }
+
+  .file-input-label {
+    background: var(--gray-light);
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    padding: 10px 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--gray-medium);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .file-input-label:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(36, 107, 209, 0.05);
+  }
+
+  .file-name {
+    font-size: 12px;
+    color: var(--gray-medium);
+  }
+
+  .modal-footer {
+    padding: 24px 32px 32px;
+    border-top: 1px solid var(--border);
+    background: var(--gray-light);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    display: block;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(36, 107, 209, 0.3);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .usuarios-wrapper {
+      padding: 20px;
+    }
+
+    .filtros-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .filtro-actions {
+      flex-direction: column;
+    }
+
+    .btn-search, .btn-secondary {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .usuarios-table th,
+    .usuarios-table td {
+      padding: 12px 12px;
+      font-size: 13px;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .form-group.full-width {
+      grid-column: span 1;
+    }
+
+    .modal-card {
+      width: 95vw;
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+    }
+
+    .modal-header h3 {
+      font-size: 20px;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .modal-footer {
+      padding: 20px 24px 24px;
+    }
+
+    .pagination-container {
+      gap: 8px;
+    }
+
+    .pagination-btn {
+      padding: 6px 12px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .usuarios-wrapper {
+      padding: 16px;
+    }
+
+    .usuarios-header h1 {
+      font-size: 24px;
+    }
+
+    .btn-new {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+    }
+
+    .modal-header h3 {
+      font-size: 18px;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .btn-primary {
+      padding: 12px 24px;
+      font-size: 14px;
+    }
+
+    .pagination-container {
+      gap: 6px;
+    }
+
+    .pagination-btn {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .pagination-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+</style>
 
 <script>
   document.addEventListener("turbo:load", function() {
     let paginaActual = 1;
-    const metaCsrf = document.querySelector('meta[name="csrf-token"]');
-    if (!metaCsrf) return;
-    const csrfToken = metaCsrf.content;
+    let totalPaginas = 1;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
     
     const cuerpo = document.getElementById("tablaUsuariosCuerpo");
     const selectPerfil = document.getElementById("idPerfil");
     const selectFiltroPerfil = document.getElementById("filtroPerfil");
-    const formulario = document.getElementById("formularioUsuario");
+    const modal = document.getElementById("modalUsuario");
     const btnNuevo = document.getElementById("btnNuevo");
+    const btnCerrarModal = document.getElementById("btnCerrarModal");
+    const btnPrimero = document.getElementById("btnPrimero");
+    const btnUltimo = document.getElementById("btnUltimo");
+    const fileInput = document.getElementById("foto_perfil");
+    const fileNameSpan = document.getElementById("file-name");
+
+    // Mostrar nombre del archivo seleccionado
+    if (fileInput) {
+      fileInput.addEventListener("change", function() {
+        if (fileNameSpan) {
+          fileNameSpan.textContent = this.files[0] ? this.files[0].name : "Ningún archivo seleccionado";
+        }
+      });
+    }
 
     function cargarUsuarios(pagina) {
-      // Recogemos los valores de los filtros
       const filtroUsuario = document.getElementById("filtroUsuario").value;
       const filtroPerfil = document.getElementById("filtroPerfil").value;
       const filtroEstado = document.getElementById("filtroEstado").value;
 
-      // Armamos la URL con los parámetros
       const params = new URLSearchParams({
         page: pagina,
         nocache: Date.now(),
@@ -129,16 +870,15 @@
         .then(res => res.json())
         .then(data => {
           cuerpo.innerHTML = "";
+          totalPaginas = data.total_paginas || 1;
           
-          if(selectPerfil.options.length === 0) {
+          if(selectPerfil.options.length <= 1) {
             data.perfiles.forEach(p => {
-              // Llenar el select del formulario de creación
               let opt = document.createElement("option");
               opt.value = p.id;
               opt.text = p.strNombrePerfil;
               selectPerfil.add(opt);
 
-              // Llenar el select de la barra de filtros
               let optFiltro = document.createElement("option");
               optFiltro.value = p.id;
               optFiltro.text = p.strNombrePerfil;
@@ -146,36 +886,42 @@
             });
           }
 
-          // 2. LECTURA DE PERMISOS PARA JS
+          if(data.usuarios.length === 0) {
+            cuerpo.innerHTML = `<tr class="empty-row"><td colspan="6">No hay usuarios registrados</td></tr>`;
+          }
+
           const permisoEditar = data.permisos.editar;
           const permisoEliminar = data.permisos.eliminar;
 
           data.usuarios.forEach(u => {
             const imgHtml = u.foto_url 
-              ? `<img src="${u.foto_url}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; display:block; margin:auto;">` 
-              : `<div style="width:40px; height:40px; border-radius:50%; background:#ddd; margin:auto;"></div>`;
+              ? `<img src="${u.foto_url}" class="avatar-img">` 
+              : `<div class="avatar-placeholder-small"></div>`;
 
-            // 3. CONSTRUCCIÓN DINÁMICA DE BOTONES
             let botonesHtml = "";
             
             if (permisoEditar) {
-              botonesHtml += `<button onclick="editarUsuario(${u.id}, '${u.strNombreUsuario}', '${u.strCorreo}', '${u.strNumeroCelular}', ${u.idPerfil}, ${u.idEstadoUsuario})" style="cursor:pointer; background:#ffc107; border:none; padding:5px; margin-right:5px;">Editar</button>`;
+              botonesHtml += `<button onclick="editarUsuario(${u.id}, '${escapeHtml(u.strNombreUsuario)}', '${escapeHtml(u.strCorreo)}', '${escapeHtml(u.strNumeroCelular || '')}', ${u.idPerfil}, ${u.idEstadoUsuario})" class="btn-action btn-edit">Editar</button>`;
             }
             if (permisoEliminar) {
-              botonesHtml += `<button onclick="eliminarUsuario(${u.id})" style="cursor:pointer; background:#dc3545; color:white; border:none; padding:5px;">Borrar</button>`;
+              botonesHtml += `<button onclick="eliminarUsuario(${u.id})" class="btn-action btn-delete">Eliminar</button>`;
             }
             if (botonesHtml === "") {
-              botonesHtml = "<span style='color: #888; font-size: 13px;'>Sin acciones</span>";
+              botonesHtml = "<span class='no-actions'>Sin acciones</span>";
             }
+
+            const estadoHtml = u.idEstadoUsuario == 1 
+              ? '<span class="badge-active">● Activo</span>' 
+              : '<span class="badge-inactive">● Inactivo</span>';
 
             const fila = document.createElement("tr");
             fila.innerHTML = `
-              <td style="padding:5px;">${imgHtml}</td>
-              <td style="padding:10px;">${u.strNombreUsuario}</td>
-              <td style="padding:10px;">${u.strCorreo}</td>
-              <td style="padding:10px;">${u.perfil_nombre}</td>
-              <td style="padding:10px;">${u.idEstadoUsuario == 1 ? '✅ Activo' : '❌ Inactivo'}</td>
-              <td style="padding:10px;">${botonesHtml}</td>
+              <td class="avatar-cell">${imgHtml}</td>
+              <td><strong>${escapeHtml(u.strNombreUsuario)}</strong></td>
+              <td>${escapeHtml(u.strCorreo)}</td>
+              <td>${escapeHtml(u.perfil_nombre)}</td>
+              <td>${estadoHtml}</td>
+              <td>${botonesHtml}</td>
             `;
             cuerpo.appendChild(fila);
           });
@@ -183,27 +929,42 @@
           document.getElementById("textoPaginacion").innerText = `Página ${data.pagina_actual} de ${data.total_paginas || 1}`;
           document.getElementById("btnAnterior").disabled = data.pagina_actual <= 1;
           document.getElementById("btnSiguiente").disabled = data.pagina_actual >= (data.total_paginas || 1);
+          if (btnPrimero) btnPrimero.disabled = data.pagina_actual <= 1;
+          if (btnUltimo) btnUltimo.disabled = data.pagina_actual >= (data.total_paginas || 1);
           paginaActual = data.pagina_actual;
-        });
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function abrirModal() {
+      modal.style.display = "flex";
+      document.body.style.overflow = "hidden";
+    }
+
+    function cerrarModal() {
+      modal.style.display = "none";
+      document.body.style.overflow = "";
     }
 
     cargarUsuarios(paginaActual);
 
-    // =========================================================
-    // --- ACCIONES DE LOS FILTROS (BÚSQUEDA EN VIVO) ---
-    // =========================================================
-
-    // 1. Filtro por texto (con pequeño retraso para no saturar el servidor)
+    // Filtros con debounce
     let temporizadorBusqueda;
     document.getElementById("filtroUsuario").addEventListener("input", () => {
-      clearTimeout(temporizadorBusqueda); // Cancelamos la búsqueda anterior si sigue escribiendo
+      clearTimeout(temporizadorBusqueda);
       temporizadorBusqueda = setTimeout(() => {
         paginaActual = 1;
         cargarUsuarios(paginaActual);
-      }, 300); // Espera 300ms después de la última tecla para buscar
+      }, 300);
     });
 
-    // 2. Filtros por Select (Perfil y Estado) - Se disparan al cambiar la opción
     document.getElementById("filtroPerfil").addEventListener("change", () => {
       paginaActual = 1;
       cargarUsuarios(paginaActual);
@@ -214,7 +975,6 @@
       cargarUsuarios(paginaActual);
     });
 
-    // 3. Botones clásicos (Buscar y Limpiar)
     document.getElementById("btnBuscar").onclick = () => {
       paginaActual = 1;
       cargarUsuarios(paginaActual);
@@ -227,24 +987,54 @@
       paginaActual = 1;
       cargarUsuarios(paginaActual);
     };
-    // =========================================================
 
-    // 4. PROTECCIÓN DEL BOTÓN NUEVO EN JS
+    // Paginación
+    if (btnPrimero) {
+      btnPrimero.addEventListener("click", () => {
+        if (paginaActual > 1) cargarUsuarios(1);
+      });
+    }
+    document.getElementById("btnAnterior").addEventListener("click", () => {
+      if (paginaActual > 1) cargarUsuarios(paginaActual - 1);
+    });
+    document.getElementById("btnSiguiente").addEventListener("click", () => {
+      if (paginaActual < totalPaginas) cargarUsuarios(paginaActual + 1);
+    });
+    if (btnUltimo) {
+      btnUltimo.addEventListener("click", () => {
+        if (paginaActual < totalPaginas) cargarUsuarios(totalPaginas);
+      });
+    }
+
+    // Modal - Nuevo Usuario
     if (btnNuevo) {
       btnNuevo.onclick = () => {
-        document.getElementById("formTitulo").innerText = "Crear Usuario";
+        document.getElementById("formTitulo").innerText = "Crear Nuevo Usuario";
         document.getElementById("usuarioId").value = "";
         document.getElementById("strNombreUsuario").value = "";
         document.getElementById("strCorreo").value = "";
         document.getElementById("strNumeroCelular").value = "";
         document.getElementById("password").value = "";
         document.getElementById("foto_perfil").value = "";
-        formulario.style.display = "block";
+        if (fileNameSpan) fileNameSpan.textContent = "Ningún archivo seleccionado";
+        abrirModal();
       };
     }
 
-    document.getElementById("btnCancelar").onclick = () => formulario.style.display = "none";
+    // Cerrar modal
+    if (btnCerrarModal) {
+      btnCerrarModal.addEventListener("click", cerrarModal);
+    }
 
+    modal.addEventListener("click", function(e) {
+      if (e.target === modal) cerrarModal();
+    });
+
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape" && modal.style.display === "flex") cerrarModal();
+    });
+
+    // Guardar Usuario
     document.getElementById("btnGuardar").onclick = () => {
       const id = document.getElementById("usuarioId").value;
       const formData = new FormData();
@@ -272,12 +1062,13 @@
       .then(res => res.json())
       .then(data => {
         if(data.success) {
-          formulario.style.display = "none";
+          cerrarModal();
           cargarUsuarios(paginaActual);
         } else {
-          alert("Error: " + data.errors.join(", "));
+          alert("Error: " + (data.errors ? data.errors.join(", ") : "Error al guardar"));
         }
-      });
+      })
+      .catch(error => console.error("Error:", error));
     };
 
     window.editarUsuario = (id, nom, cor, cel, per, est) => {
@@ -288,20 +1079,27 @@
       document.getElementById("strNumeroCelular").value = cel;
       document.getElementById("idPerfil").value = per;
       document.getElementById("idEstadoUsuario").value = est;
-      document.getElementById("password").value = ""; 
-      formulario.style.display = "block";
+      document.getElementById("password").value = "";
+      document.getElementById("foto_perfil").value = "";
+      if (fileNameSpan) fileNameSpan.textContent = "Ningún archivo seleccionado";
+      abrirModal();
     };
 
     window.eliminarUsuario = (id) => {
-      if(confirm("¿Seguro que deseas eliminar este usuario?")) {
+      if(confirm("¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.")) {
         fetch(`/usuarios/${id}.json`, {
           method: "DELETE",
           headers: { "X-CSRF-Token": csrfToken }
-        }).then(() => cargarUsuarios(paginaActual));
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.success) {
+            cargarUsuarios(paginaActual);
+          } else {
+            alert("Error al eliminar el usuario");
+          }
+        });
       }
     };
-
-    document.getElementById("btnAnterior").onclick = () => cargarUsuarios(paginaActual - 1);
-    document.getElementById("btnSiguiente").onclick = () => cargarUsuarios(paginaActual + 1);
   });
 </script>
