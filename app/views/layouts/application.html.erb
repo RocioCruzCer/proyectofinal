@@ -16,488 +16,523 @@
       ============================================ */
       :root {
         --primary: #246BD1;
-      --primary-dark: #1A4F9C;
-      --secondary: #7C8EF8;
-      --accent: #F3B0B8;
-      --success: #02900E;
-      --gray-bg: #C2C7CC;
-      --gray-light: #F8F9FC;
-      --gray-medium: #6C757D;
-      --gray-dark: #2C3E50;
-      --white: #FFFFFF;
-      --border: #E9ECEF;
-    }
-
-    /* ============================================
-       TIPOGRAFÍAS MODERNAS
-    ============================================ */
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, var(--gray-light) 0%, #F1F3F5 100%);
-      font-family: 'Montserrat', sans-serif;
-      color: var(--gray-dark);
-      min-height: 100vh;
-    }
-
-    /* ============================================
-       NAVBAR MEJORADA
-    ============================================ */
-    .navbar {
-      background: linear-gradient(135deg, var(--gray-dark) 0%, #1F2A33 100%);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 32px;
-      height: 70px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      border-bottom: 3px solid var(--primary);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-
-    .nav-menu {
-      display: flex;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      gap: 4px;
-    }
-
-    .nav-item {
-      position: relative;
-      height: 100%;
-    }
-
-    .nav-link {
-      display: flex;
-      align-items: center;
-      height: 100%;
-      padding: 0 20px;
-      color: rgba(255, 255, 255, 0.9);
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 600;
-      font-family: 'Poppins', sans-serif;
-      letter-spacing: 0.5px;
-      transition: all 0.3s ease;
-      border-radius: 8px;
-      margin: 0 2px;
-      position: relative;
-    }
-
-    .nav-link:hover {
-      background-color: rgba(124, 142, 248, 0.15);
-      color: var(--white);
-    }
-
-    .nav-item > span.nav-link {
-      cursor: pointer;
-    }
-
-    .nav-item > span.nav-link small {
-      font-size: 10px;
-      margin-left: 6px;
-      transition: transform 0.3s ease;
-      display: inline-block;
-    }
-
-    .nav-item:hover > span.nav-link small {
-      transform: rotate(180deg);
-    }
-
-    /* ============================================
-       DROPDOWN MEJORADO
-    ============================================ */
-    .dropdown {
-      display: none;
-      position: absolute;
-      top: calc(100% - 4px);
-      left: 0;
-      background-color: var(--white);
-      min-width: 240px;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-      z-index: 1000;
-      list-style: none;
-      padding: 8px 0;
-      margin: 0;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      animation: dropdownFadeIn 0.2s ease;
-    }
-
-    @keyframes dropdownFadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
+        --primary-dark: #1A4F9C;
+        --secondary: #7C8EF8;
+        --accent: #F3B0B8;
+        --success: #02900E;
+        --gray-bg: #C2C7CC;
+        --gray-light: #F8F9FC;
+        --gray-medium: #6C757D;
+        --gray-dark: #2C3E50;
+        --white: #FFFFFF;
+        --border: #E9ECEF;
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
+
+      /* ============================================
+         TIPOGRAFÍAS MODERNAS
+      ============================================ */
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
-    }
 
-    .dropdown li a {
-      display: block;
-      padding: 10px 20px;
-      color: var(--gray-dark);
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 500;
-      font-family: 'Montserrat', sans-serif;
-      transition: all 0.2s ease;
-      position: relative;
-    }
-
-    .dropdown li a:hover {
-      background: linear-gradient(90deg, rgba(36, 107, 209, 0.05) 0%, rgba(124, 142, 248, 0.05) 100%);
-      color: var(--primary);
-      padding-left: 28px;
-    }
-
-    .dropdown li a:hover::before {
-      content: '';
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 4px;
-      height: 4px;
-      background-color: var(--primary);
-      border-radius: 50%;
-    }
-
-    .nav-item:hover .dropdown {
-      display: block;
-    }
-
-    /* ============================================
-       USER SECTION MEJORADA
-    ============================================ */
-    .user-section {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 13px;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 6px 16px;
-      border-radius: 40px;
-      transition: all 0.3s ease;
-    }
-
-    .user-section:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .user-name {
-      font-weight: 700;
-      color: var(--secondary);
-      font-family: 'Poppins', sans-serif;
-    }
-
-    .btn-logout {
-      background: transparent;
-      border: 1.5px solid rgba(255, 255, 255, 0.3);
-      color: rgba(255, 255, 255, 0.9);
-      padding: 6px 16px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 12px;
-      font-family: 'Poppins', sans-serif;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-logout:hover {
-      background-color: rgba(243, 176, 184, 0.2);
-      border-color: var(--accent);
-      color: var(--accent);
-      transform: translateY(-1px);
-    }
-
-    /* ============================================
-       BREADCRUMBS - SIN MARGEN, SIN CONTORNO
-    ============================================ */
-    .breadcrumbs {
-      padding: 16px 32px 8px 32px;
-      font-size: 13px;
-      color: var(--gray-medium);
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      background: transparent;
-    }
-
-    .breadcrumbs a {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.2s;
-      font-family: 'Montserrat', sans-serif;
-    }
-
-    .breadcrumbs a:hover {
-      color: var(--secondary);
-      text-decoration: underline;
-    }
-
-    .breadcrumbs .separator {
-      color: var(--gray-bg);
-      font-weight: 300;
-    }
-
-    .breadcrumbs .current {
-      color: var(--gray-dark);
-      font-weight: 600;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    /* ============================================
-       MAIN CONTENT
-    ============================================ */
-    main {
-      padding: 8px 32px 32px 32px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    /* ============================================
-       MODAL DE CONFIRMACIÓN
-    ============================================ */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(4px);
-      z-index: 2000;
-      justify-content: center;
-      align-items: center;
-      animation: fadeIn 0.2s ease;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
+      body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, var(--gray-light) 0%, #F1F3F5 100%);
+        font-family: 'Montserrat', sans-serif;
+        color: var(--gray-dark);
+        min-height: 100vh;
       }
-      to {
-        opacity: 1;
-      }
-    }
 
-    .modal-container {
-      background: var(--white);
-      border-radius: 24px;
-      width: 90%;
-      max-width: 400px;
-      overflow: hidden;
-      animation: slideUp 0.3s ease;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .modal-header {
-      padding: 24px 24px 16px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .modal-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, rgba(243, 176, 184, 0.2) 0%, rgba(243, 176, 184, 0.1) 100%);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-icon svg {
-      color: var(--accent);
-    }
-
-    .modal-header h3 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--gray-dark);
-      margin: 0;
-    }
-
-    .modal-body {
-      padding: 20px 24px;
-      color: var(--gray-medium);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .modal-footer {
-      padding: 16px 24px 24px;
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-      border-top: 1px solid var(--border);
-    }
-
-    .btn-modal-cancel {
-      padding: 10px 20px;
-      background: var(--gray-light);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
-      font-size: 13px;
-      color: var(--gray-medium);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-modal-cancel:hover {
-      background: var(--border);
-      transform: translateY(-1px);
-    }
-
-    .btn-modal-confirm {
-      padding: 10px 20px;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      border: none;
-      border-radius: 10px;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
-      font-size: 13px;
-      color: white;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-modal-confirm:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(36, 107, 209, 0.3);
-    }
-
-    /* ============================================
-       RESPONSIVE
-    ============================================ */
-    @media (max-width: 1024px) {
+      /* ============================================
+         NAVBAR MEJORADA
+      ============================================ */
       .navbar {
-        padding: 0 20px;
+        background: linear-gradient(135deg, var(--gray-dark) 0%, #1F2A33 100%);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 32px;
+        height: 70px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border-bottom: 3px solid var(--primary);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
       }
-      
-      .nav-link {
-        padding: 0 14px;
-        font-size: 12px;
-      }
-      
-      main {
-        padding: 8px 20px 24px 20px;
-      }
-      
-      .breadcrumbs {
-        padding: 12px 20px 6px 20px;
-      }
-    }
 
-    @media (max-width: 768px) {
-      .navbar {
-        flex-wrap: wrap;
-        height: auto;
-        padding: 12px 16px;
-        gap: 12px;
-      }
-      
       .nav-menu {
-        flex-wrap: wrap;
-        height: auto;
+        display: flex;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        height: 100%;
         gap: 4px;
       }
-      
-      .nav-item {
-        height: auto;
-      }
-      
-      .nav-link {
-        padding: 8px 12px;
-        height: auto;
-      }
-      
-      .dropdown {
-        position: static;
-        box-shadow: none;
-        padding-left: 20px;
-        animation: none;
-      }
-      
-      .nav-item:hover .dropdown {
-        display: none;
-      }
-      
-      .user-section {
-        width: 100%;
-        justify-content: space-between;
-      }
-      
-      main {
-        padding: 8px 16px 20px 16px;
-      }
-      
-      .breadcrumbs {
-        padding: 10px 16px 4px 16px;
-        font-size: 12px;
-      }
-    }
 
-    @media (max-width: 480px) {
+      .nav-item {
+        position: relative;
+        height: 100%;
+      }
+
       .nav-link {
-        font-size: 11px;
-        padding: 6px 10px;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        padding: 0 20px;
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: 'Poppins', sans-serif;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        margin: 0 2px;
+        position: relative;
       }
-      
+
+      .nav-link:hover {
+        background-color: rgba(124, 142, 248, 0.15);
+        color: var(--white);
+      }
+
+      .nav-item > span.nav-link {
+        cursor: pointer;
+      }
+
+      .nav-item > span.nav-link small {
+        font-size: 10px;
+        margin-left: 6px;
+        transition: transform 0.3s ease;
+        display: inline-block;
+      }
+
+      .nav-item:hover > span.nav-link small {
+        transform: rotate(180deg);
+      }
+
+      /* ============================================
+         DROPDOWN MEJORADO
+      ============================================ */
+      .dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% - 4px);
+        left: 0;
+        background-color: var(--white);
+        min-width: 240px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+        z-index: 1000;
+        list-style: none;
+        padding: 8px 0;
+        margin: 0;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        animation: dropdownFadeIn 0.2s ease;
+      }
+
+      @keyframes dropdownFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .dropdown li a {
+        display: block;
+        padding: 10px 20px;
+        color: var(--gray-dark);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        font-family: 'Montserrat', sans-serif;
+        transition: all 0.2s ease;
+        position: relative;
+      }
+
+      .dropdown li a:hover {
+        background: linear-gradient(90deg, rgba(36, 107, 209, 0.05) 0%, rgba(124, 142, 248, 0.05) 100%);
+        color: var(--primary);
+        padding-left: 28px;
+      }
+
+      .dropdown li a:hover::before {
+        content: '';
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 4px;
+        background-color: var(--primary);
+        border-radius: 50%;
+      }
+
+      .nav-item:hover .dropdown {
+        display: block;
+      }
+
+      /* ============================================
+         USER SECTION MEJORADA - NUEVO DISEÑO SIN "BIENVENIDO"
+      ============================================ */
       .user-section {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 13px;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 6px 16px;
+        border-radius: 40px;
+        transition: all 0.3s ease;
+      }
+
+      .user-section:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Nuevo estilo: saludo moderno sin "Bienvenido" */
+      .user-greeting {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .greeting-text {
+        font-weight: 500;
         font-size: 12px;
-        padding: 4px 12px;
+        color: rgba(255, 255, 255, 0.7);
+        letter-spacing: 0.3px;
       }
-      
+
+      .user-name {
+        font-weight: 700;
+        color: var(--secondary);
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        background: linear-gradient(135deg, var(--secondary) 0%, #A5B4FC 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        text-shadow: 0 0 8px rgba(124, 142, 248, 0.3);
+      }
+
       .btn-logout {
-        padding: 4px 12px;
-        font-size: 11px;
+        background: transparent;
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        color: rgba(255, 255, 255, 0.9);
+        padding: 6px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 12px;
+        font-family: 'Poppins', sans-serif;
+        cursor: pointer;
+        transition: all 0.3s ease;
       }
-      
+
+      .btn-logout:hover {
+        background-color: rgba(243, 176, 184, 0.2);
+        border-color: var(--accent);
+        color: var(--accent);
+        transform: translateY(-1px);
+      }
+
+      /* ============================================
+         BREADCRUMBS - SIN MARGEN, SIN CONTORNO
+      ============================================ */
       .breadcrumbs {
-        padding: 8px 16px 4px 16px;
-        font-size: 11px;
+        padding: 16px 32px 8px 32px;
+        font-size: 13px;
+        color: var(--gray-medium);
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        background: transparent;
       }
-      
+
+      .breadcrumbs a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+        font-family: 'Montserrat', sans-serif;
+      }
+
+      .breadcrumbs a:hover {
+        color: var(--secondary);
+        text-decoration: underline;
+      }
+
+      .breadcrumbs .separator {
+        color: var(--gray-bg);
+        font-weight: 300;
+      }
+
+      .breadcrumbs .current {
+        color: var(--gray-dark);
+        font-weight: 600;
+        font-family: 'Poppins', sans-serif;
+      }
+
+      /* ============================================
+         MAIN CONTENT
+      ============================================ */
       main {
-        padding: 8px 16px 16px 16px;
+        padding: 8px 32px 32px 32px;
+        max-width: 1400px;
+        margin: 0 auto;
       }
-    }
+
+      /* ============================================
+         MODAL DE CONFIRMACIÓN - TEXTO EXACTAMENTE COMO LA IMAGEN
+      ============================================ */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.2s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .modal-container {
+        background: var(--white);
+        border-radius: 24px;
+        width: 90%;
+        max-width: 420px;
+        overflow: hidden;
+        animation: slideUp 0.3s ease;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .modal-header {
+        padding: 24px 24px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .modal-icon {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, rgba(243, 176, 184, 0.2) 0%, rgba(243, 176, 184, 0.1) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-icon svg {
+        color: var(--accent);
+        stroke: #F3B0B8;
+      }
+
+      .modal-header h3 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--gray-dark);
+        margin: 0;
+      }
+
+      .modal-body {
+        padding: 24px 24px 20px;
+        color: var(--gray-dark);
+        font-size: 15px;
+        line-height: 1.5;
+        font-weight: 500;
+        text-align: center;
+      }
+
+      /* Texto del modal idéntico al de la imagen: "¿Estás seguro de que deseas cerrar sesión? Se cerrará tu sesión actual." */
+      .modal-body p {
+        margin: 0;
+        font-family: 'Montserrat', sans-serif;
+      }
+
+      .modal-footer {
+        padding: 16px 24px 24px;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        border-top: 1px solid var(--border);
+      }
+
+      .btn-modal-cancel {
+        padding: 10px 20px;
+        background: var(--gray-light);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--gray-medium);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-modal-cancel:hover {
+        background: var(--border);
+        transform: translateY(-1px);
+      }
+
+      .btn-modal-confirm {
+        padding: 10px 20px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        border: none;
+        border-radius: 10px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 13px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-modal-confirm:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(36, 107, 209, 0.3);
+      }
+
+      /* ============================================
+         RESPONSIVE
+      ============================================ */
+      @media (max-width: 1024px) {
+        .navbar {
+          padding: 0 20px;
+        }
+        
+        .nav-link {
+          padding: 0 14px;
+          font-size: 12px;
+        }
+        
+        main {
+          padding: 8px 20px 24px 20px;
+        }
+        
+        .breadcrumbs {
+          padding: 12px 20px 6px 20px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .navbar {
+          flex-wrap: wrap;
+          height: auto;
+          padding: 12px 16px;
+          gap: 12px;
+        }
+        
+        .nav-menu {
+          flex-wrap: wrap;
+          height: auto;
+          gap: 4px;
+        }
+        
+        .nav-item {
+          height: auto;
+        }
+        
+        .nav-link {
+          padding: 8px 12px;
+          height: auto;
+        }
+        
+        .dropdown {
+          position: static;
+          box-shadow: none;
+          padding-left: 20px;
+          animation: none;
+        }
+        
+        .nav-item:hover .dropdown {
+          display: none;
+        }
+        
+        .user-section {
+          width: 100%;
+          justify-content: space-between;
+        }
+        
+        main {
+          padding: 8px 16px 20px 16px;
+        }
+        
+        .breadcrumbs {
+          padding: 10px 16px 4px 16px;
+          font-size: 12px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .nav-link {
+          font-size: 11px;
+          padding: 6px 10px;
+        }
+        
+        .user-section {
+          font-size: 12px;
+          padding: 4px 12px;
+        }
+        
+        .btn-logout {
+          padding: 4px 12px;
+          font-size: 11px;
+        }
+        
+        .breadcrumbs {
+          padding: 8px 16px 4px 16px;
+          font-size: 11px;
+        }
+        
+        main {
+          padding: 8px 16px 16px 16px;
+        }
+        
+        .modal-body {
+          font-size: 14px;
+          padding: 20px 20px 16px;
+        }
+      }
     </style>
   </head>
 
@@ -565,8 +600,12 @@
           </li>
         </ul>
 
+        <!-- SECCIÓN DE USUARIO: SALUDO MODERNO SIN "BIENVENIDO" -->
         <div class="user-section">
-          <span>Bienvenido, <span class="user-name"><%= usuario_actual.strNombreUsuario %></span></span>
+          <div class="user-greeting">
+            <span class="greeting-text">Hola,</span>
+            <span class="user-name"><%= usuario_actual.strNombreUsuario %></span>
+          </div>
           <%= button_to "Cerrar Sesión", logout_path, method: :delete, data: { turbo: false, confirm: false }, class: "btn-logout", id: "logout-button" %>
         </div>
       </nav>
@@ -617,12 +656,12 @@
       <%= yield %>
     </main>
 
-    <!-- Modal de confirmación para cerrar sesión -->
+    <!-- MODAL DE CONFIRMACIÓN CON EL TEXTO EXACTO DE LA IMAGEN -->
     <div id="logout-modal" class="modal-overlay">
       <div class="modal-container">
         <div class="modal-header">
           <div class="modal-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" y1="12" x2="9" y2="12" />
@@ -631,7 +670,7 @@
           <h3>Confirmar salida</h3>
         </div>
         <div class="modal-body">
-          ¿Estás seguro de que deseas cerrar sesión? Se cerrará tu sesión actual.
+          <p>¿Estás seguro de que deseas cerrar sesión? Se cerrará tu sesión actual.</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn-modal-cancel" id="modal-cancel">Cancelar</button>
@@ -649,8 +688,10 @@
         let logoutForm = null;
         
         if (logoutButton) {
+          // Buscar el formulario que envuelve el botón (button_to genera un form)
           logoutForm = logoutButton.closest('form');
           
+          // Prevenir el envío directo del formulario para mostrar el modal
           logoutButton.addEventListener('click', function(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -674,13 +715,16 @@
         if (confirmBtn) {
           confirmBtn.addEventListener('click', function() {
             if (logoutForm) {
+              // Enviamos el formulario original (DELETE)
               logoutForm.submit();
             } else {
+              // Fallback: redirigir a la ruta de logout si no se encuentra el form
               window.location.href = '<%= logout_path %>';
             }
           });
         }
         
+        // Cerrar modal si se hace clic en el overlay
         if (modal) {
           modal.addEventListener('click', function(event) {
             if (event.target === modal) {
@@ -689,6 +733,7 @@
           });
         }
         
+        // Cerrar modal con tecla ESC
         document.addEventListener('keydown', function(event) {
           if (event.key === 'Escape' && modal && modal.style.display === 'flex') {
             closeModal();
