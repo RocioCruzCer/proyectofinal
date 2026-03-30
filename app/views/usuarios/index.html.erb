@@ -56,9 +56,9 @@
   <div class="table-container">
     <table class="usuarios-table">
       <thead>
-        <tr>
           <th>Foto</th>
-          <th>Nombre</th>
+          <th>Usuario</th>
+          <th>Teléfono</th>
           <th>Correo</th>
           <th>Perfil</th>
           <th>Estado</th>
@@ -97,7 +97,7 @@
   </div>
 </div>
 
-<!-- Modal flotante para el formulario -->
+<!-- Modal flotante para el formulario - MUY ANCHO Y UNA SOLA COLUMNA -->
 <div id="modalUsuario" class="modal-overlay">
   <div class="modal-container">
     <div class="modal-card">
@@ -113,57 +113,67 @@
       <div class="modal-body">
         <input type="hidden" id="usuarioId">
         
-        <div class="form-grid">
+        <!-- Foto de Perfil - Parte superior centrada -->
+        <div class="photo-section-top">
+          <label>Foto de Perfil</label>
+          <div class="photo-upload-container-top">
+            <div class="photo-preview-top" id="photoPreview" onclick="document.getElementById('foto_perfil').click()">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span>Haz clic para subir<br>foto de perfil</span>
+            </div>
+            <input type="file" id="foto_perfil" accept="image/jpeg,image/png,image/gif,image/jpg" style="display: none;">
+            <div class="photo-info-top">
+              <div class="photo-hint-top">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                Formatos permitidos: JPG, PNG, GIF. Máx 5MB
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulario en UNA SOLA COLUMNA con campos más grandes -->
+        <div class="form-single-column">
           <div class="form-group">
-            <label for="strNombreUsuario">Nombre Completo</label>
-            <input type="text" id="strNombreUsuario" class="form-input" placeholder="Ej: Juan Pérez García" required>
+            <label for="strNombreUsuario">Nombre de usuario <span class="required">*</span></label>
+            <input type="text" id="strNombreUsuario" class="form-input form-input-large" placeholder="Ej: Juan Pérez García" required>
           </div>
           
           <div class="form-group">
-            <label for="strCorreo">Correo Electrónico</label>
-            <input type="email" id="strCorreo" class="form-input" placeholder="ejemplo@corporativo.com" required>
+            <label for="strCorreo">Correo Electrónico <span class="required">*</span></label>
+            <input type="email" id="strCorreo" class="form-input form-input-large" placeholder="ejemplo@corporativo.com" required>
           </div>
           
           <div class="form-group">
             <label for="strNumeroCelular">Celular</label>
-            <input type="text" id="strNumeroCelular" class="form-input" placeholder="+52 123 456 7890">
+            <input type="text" id="strNumeroCelular" class="form-input form-input-large" placeholder="+52 123 456 7890">
           </div>
           
           <div class="form-group">
             <label for="password">Contraseña</label>
-            <input type="password" id="password" class="form-input" placeholder="Mínimo 6 caracteres">
+            <input type="password" id="password" class="form-input form-input-large" placeholder="Mínimo 6 caracteres">
             <span class="input-hint">Dejar en blanco para mantener la contraseña actual</span>
           </div>
           
           <div class="form-group">
-            <label for="idPerfil">Perfil</label>
-            <select id="idPerfil" class="form-select" required>
+            <label for="idPerfil">Perfil <span class="required">*</span></label>
+            <select id="idPerfil" class="form-select form-select-large" required>
               <option value="">Seleccione un perfil...</option>
             </select>
           </div>
           
           <div class="form-group">
             <label for="idEstadoUsuario">Estado</label>
-            <select id="idEstadoUsuario" class="form-select">
+            <select id="idEstadoUsuario" class="form-select form-select-large">
               <option value="1">Activo</option>
               <option value="2">Inactivo</option>
             </select>
-          </div>
-          
-          <div class="form-group full-width">
-            <label for="foto_perfil">Foto de Perfil</label>
-            <div class="file-input-wrapper">
-              <input type="file" id="foto_perfil" accept="image/*" class="file-input">
-              <div class="file-input-label">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                  <circle cx="12" cy="13" r="4"/>
-                </svg>
-                <span>Seleccionar imagen</span>
-              </div>
-              <span class="file-name" id="file-name">Ningún archivo seleccionado</span>
-            </div>
-            <span class="input-hint">Formatos permitidos: JPG, PNG, GIF. Máx 5MB</span>
           </div>
         </div>
       </div>
@@ -397,6 +407,12 @@
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--primary);
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .avatar-img:hover {
+    transform: scale(1.1);
   }
 
   .avatar-placeholder-small {
@@ -521,7 +537,7 @@
     color: var(--gray-medium);
   }
 
-  /* Modal */
+  /* MODAL - MUY ANCHO Y UNA SOLA COLUMNA */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -567,10 +583,11 @@
     }
   }
 
+  /* MODAL CARD - MÁS ANCHO AÚN */
   .modal-card {
     background: var(--white);
     border-radius: 32px;
-    width: 800px;
+    width: 900px;
     max-width: 90vw;
     overflow: hidden;
     box-shadow: var(--shadow-modal);
@@ -580,7 +597,7 @@
 
   .modal-header {
     background: linear-gradient(135deg, var(--gray-light) 0%, #FFFFFF 100%);
-    padding: 28px 32px;
+    padding: 28px 36px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -589,7 +606,7 @@
 
   .modal-header h3 {
     margin: 0;
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 700;
     font-family: 'Poppins', sans-serif;
     color: var(--gray-dark);
@@ -615,81 +632,153 @@
   }
 
   .modal-body {
-    padding: 32px;
+    padding: 36px;
     max-height: 70vh;
     overflow-y: auto;
   }
 
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
+  /* SECCIÓN DE FOTO - PARTE SUPERIOR Y CENTRADA */
+  .photo-section-top {
+    margin-bottom: 40px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 30px;
+  }
+
+  .photo-section-top label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-dark);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+  }
+
+  .photo-upload-container-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .photo-preview-top {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: var(--gray-light);
+    border: 2px dashed var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    overflow: hidden;
+    position: relative;
+    margin: 0 auto;
+  }
+
+  .photo-preview-top:hover {
+    border-color: var(--primary);
+    background: rgba(36, 107, 209, 0.05);
+    transform: scale(1.02);
+  }
+
+  .photo-preview-top svg {
+    color: var(--gray-medium);
+    margin-bottom: 8px;
+  }
+
+  .photo-preview-top span {
+    font-size: 11px;
+    color: var(--gray-medium);
+    text-align: center;
+    padding: 0 12px;
+    line-height: 1.4;
+  }
+
+  .photo-preview-top img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .photo-info-top {
+    text-align: center;
+  }
+
+  .photo-hint-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--gray-medium);
+    background: var(--gray-light);
+    padding: 8px 16px;
+    border-radius: 20px;
+  }
+
+  /* FORMULARIO EN UNA SOLA COLUMNA - CAMPOS GRANDES */
+  .form-single-column {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    max-width: 100%;
+    margin: 0 auto;
   }
 
   .form-group {
     display: flex;
     flex-direction: column;
-  }
-
-  .form-group.full-width {
-    grid-column: span 2;
+    width: 100%;
   }
 
   .form-group label {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--gray-dark);
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
 
-  .input-hint {
-    font-size: 11px;
-    color: var(--gray-medium);
-    margin-top: 6px;
-  }
-
-  /* File Input */
-  .file-input-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .file-input {
-    display: none;
-  }
-
-  .file-input-label {
-    background: var(--gray-light);
-    border: 1.5px dashed var(--border);
-    border-radius: 10px;
-    padding: 10px 20px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
+  /* Campos de entrada más grandes */
+  .form-input-large,
+  .form-select-large {
+    width: 100%;
+    padding: 14px 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
     transition: all 0.2s;
-    color: var(--gray-medium);
-    font-size: 13px;
-    font-weight: 500;
+    background: var(--white);
   }
 
-  .file-input-label:hover {
+  .form-input-large:focus,
+  .form-select-large:focus {
+    outline: none;
     border-color: var(--primary);
-    color: var(--primary);
-    background: rgba(36, 107, 209, 0.05);
+    box-shadow: 0 0 0 3px rgba(36, 107, 209, 0.08);
   }
 
-  .file-name {
+  .required {
+    color: var(--accent);
+    margin-left: 4px;
+  }
+
+  .input-hint {
     font-size: 12px;
     color: var(--gray-medium);
+    margin-top: 8px;
   }
 
   .modal-footer {
-    padding: 24px 32px 32px;
+    padding: 24px 36px 36px;
     border-top: 1px solid var(--border);
     background: var(--gray-light);
     width: 100%;
@@ -700,9 +789,9 @@
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     color: white;
     border: none;
-    padding: 14px 28px;
+    padding: 16px 28px;
     border-radius: 14px;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
     font-family: 'Poppins', sans-serif;
     cursor: pointer;
@@ -719,6 +808,12 @@
   }
 
   /* Responsive */
+  @media (max-width: 1024px) {
+    .modal-card {
+      width: 95vw;
+    }
+  }
+
   @media (max-width: 768px) {
     .usuarios-wrapper {
       padding: 20px;
@@ -743,24 +838,12 @@
       font-size: 13px;
     }
 
-    .form-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .form-group.full-width {
-      grid-column: span 1;
-    }
-
-    .modal-card {
-      width: 95vw;
-    }
-
     .modal-header {
       padding: 20px 24px;
     }
 
     .modal-header h3 {
-      font-size: 20px;
+      font-size: 22px;
     }
 
     .modal-body {
@@ -777,6 +860,17 @@
 
     .pagination-btn {
       padding: 6px 12px;
+    }
+
+    .photo-preview-top {
+      width: 100px;
+      height: 100px;
+    }
+
+    .form-input-large,
+    .form-select-large {
+      padding: 12px 16px;
+      font-size: 15px;
     }
   }
 
@@ -807,8 +901,8 @@
     }
 
     .btn-primary {
-      padding: 12px 24px;
-      font-size: 14px;
+      padding: 14px 24px;
+      font-size: 15px;
     }
 
     .pagination-container {
@@ -823,6 +917,17 @@
     .pagination-btn svg {
       width: 14px;
       height: 14px;
+    }
+
+    .photo-preview-top {
+      width: 100px;
+      height: 100px;
+    }
+
+    .form-input-large,
+    .form-select-large {
+      padding: 10px 14px;
+      font-size: 14px;
     }
   }
 </style>
@@ -842,13 +947,39 @@
     const btnPrimero = document.getElementById("btnPrimero");
     const btnUltimo = document.getElementById("btnUltimo");
     const fileInput = document.getElementById("foto_perfil");
-    const fileNameSpan = document.getElementById("file-name");
+    const photoPreview = document.getElementById("photoPreview");
 
-    // Mostrar nombre del archivo seleccionado
+    // Función para mostrar preview de la imagen
+    function showImagePreview(file) {
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          photoPreview.innerHTML = '';
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'cover';
+          photoPreview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        // Restaurar preview por defecto
+        photoPreview.innerHTML = `
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span>Haz clic para subir<br>foto de perfil</span>
+        `;
+      }
+    }
+
+    // Evento para seleccionar archivo
     if (fileInput) {
       fileInput.addEventListener("change", function() {
-        if (fileNameSpan) {
-          fileNameSpan.textContent = this.files[0] ? this.files[0].name : "Ningún archivo seleccionado";
+        if (this.files && this.files[0]) {
+          showImagePreview(this.files[0]);
         }
       });
     }
@@ -895,13 +1026,13 @@
 
           data.usuarios.forEach(u => {
             const imgHtml = u.foto_url 
-              ? `<img src="${u.foto_url}" class="avatar-img">` 
+              ? `<img src="${u.foto_url}" class="avatar-img" onclick="verImagenAmpliada('${u.foto_url}', '${escapeHtml(u.strNombreUsuario)}')">` 
               : `<div class="avatar-placeholder-small"></div>`;
 
             let botonesHtml = "";
             
             if (permisoEditar) {
-              botonesHtml += `<button onclick="editarUsuario(${u.id}, '${escapeHtml(u.strNombreUsuario)}', '${escapeHtml(u.strCorreo)}', '${escapeHtml(u.strNumeroCelular || '')}', ${u.idPerfil}, ${u.idEstadoUsuario})" class="btn-action btn-edit">Editar</button>`;
+              botonesHtml += `<button onclick="editarUsuario(${u.id}, '${escapeHtml(u.strNombreUsuario)}', '${escapeHtml(u.strCorreo)}', '${escapeHtml(u.strNumeroCelular || '')}', ${u.idPerfil}, ${u.idEstadoUsuario}, '${u.foto_url || ''}')" class="btn-action btn-edit">Editar</button>`;
             }
             if (permisoEliminar) {
               botonesHtml += `<button onclick="eliminarUsuario(${u.id})" class="btn-action btn-delete">Eliminar</button>`;
@@ -918,6 +1049,7 @@
             fila.innerHTML = `
               <td class="avatar-cell">${imgHtml}</td>
               <td><strong>${escapeHtml(u.strNombreUsuario)}</strong></td>
+              <td>${escapeHtml(u.strNumeroCelular)}</td>
               <td>${escapeHtml(u.strCorreo)}</td>
               <td>${escapeHtml(u.perfil_nombre)}</td>
               <td>${estadoHtml}</td>
@@ -951,6 +1083,17 @@
     function cerrarModal() {
       modal.style.display = "none";
       document.body.style.overflow = "";
+      // Resetear preview al cerrar
+      if (photoPreview) {
+        photoPreview.innerHTML = `
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span>Haz clic para subir<br>foto de perfil</span>
+        `;
+      }
+      if (fileInput) fileInput.value = "";
     }
 
     cargarUsuarios(paginaActual);
@@ -1015,8 +1158,17 @@
         document.getElementById("strCorreo").value = "";
         document.getElementById("strNumeroCelular").value = "";
         document.getElementById("password").value = "";
-        document.getElementById("foto_perfil").value = "";
-        if (fileNameSpan) fileNameSpan.textContent = "Ningún archivo seleccionado";
+        if (fileInput) fileInput.value = "";
+        // Resetear preview
+        if (photoPreview) {
+          photoPreview.innerHTML = `
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span>Haz clic para subir<br>foto de perfil</span>
+          `;
+        }
         abrirModal();
       };
     }
@@ -1071,7 +1223,7 @@
       .catch(error => console.error("Error:", error));
     };
 
-    window.editarUsuario = (id, nom, cor, cel, per, est) => {
+    window.editarUsuario = (id, nom, cor, cel, per, est, fotoUrl) => {
       document.getElementById("formTitulo").innerText = "Editar Usuario";
       document.getElementById("usuarioId").value = id;
       document.getElementById("strNombreUsuario").value = nom;
@@ -1080,8 +1232,22 @@
       document.getElementById("idPerfil").value = per;
       document.getElementById("idEstadoUsuario").value = est;
       document.getElementById("password").value = "";
-      document.getElementById("foto_perfil").value = "";
-      if (fileNameSpan) fileNameSpan.textContent = "Ningún archivo seleccionado";
+      if (fileInput) fileInput.value = "";
+      
+      // Mostrar preview de la foto existente si la hay
+      if (photoPreview) {
+        if (fotoUrl && fotoUrl !== '') {
+          photoPreview.innerHTML = `<img src="${fotoUrl}" style="width:100%; height:100%; object-fit:cover;">`;
+        } else {
+          photoPreview.innerHTML = `
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span>Haz clic para subir<br>foto de perfil</span>
+          `;
+        }
+      }
       abrirModal();
     };
 
@@ -1100,6 +1266,31 @@
           }
         });
       }
+    };
+
+    window.verImagenAmpliada = (url, nombre) => {
+      const modalImg = document.createElement('div');
+      modalImg.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.9);
+        z-index: 2000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+      `;
+      modalImg.innerHTML = `
+        <div style="text-align: center;">
+          <img src="${url}" style="max-width: 90vw; max-height: 90vh; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+          <p style="color: white; margin-top: 16px; font-family: 'Poppins', sans-serif;">${escapeHtml(nombre)}</p>
+        </div>
+      `;
+      modalImg.onclick = () => modalImg.remove();
+      document.body.appendChild(modalImg);
     };
   });
 </script>
