@@ -1,20 +1,20 @@
 <div class="permisos-wrapper">
   
-  <!-- Cabecera -->
   <div class="permisos-header">
     <h1>Gestión de Permisos por Perfil</h1>
     <p>Configure los permisos de acceso para cada perfil del sistema</p>
   </div>
 
-  <!-- Selector de Perfil -->
   <div class="selector-card">
     <div class="selector-content">
       <label for="selectPerfil">Seleccionar Perfil</label>
       <div class="selector-input-group">
         <select id="selectPerfil" class="form-select">
-          <option value="">Seleccione un perfil...</option>
+          <option value="" data-admin="false">Seleccione un perfil...</option>
           <% @perfiles.each do |p| %>
-            <option value="<%= p.id %>"><%= p.strNombrePerfil %></option>
+            <option value="<%= p.id %>" data-admin="<%= p.bitAdministrador ? 'true' : 'false' %>">
+              <%= p.strNombrePerfil %>
+            </option>
           <% end %>
         </select>
         <button id="btnBuscar" class="btn-search">
@@ -28,7 +28,6 @@
     </div>
   </div>
 
-  <!-- Tabla de Permisos -->
   <div id="contenedorTabla" style="display:none;">
     <div class="table-header">
       <h3 id="tituloModulos">Permisos por Módulo</h3>
@@ -386,14 +385,22 @@ document.addEventListener("turbo:load", function() {
       return;
     }
 
+    // LEER SI EL PERFIL ES ADMINISTRADOR
+    const opcionSeleccionada = selectPerfil.options[selectPerfil.selectedIndex];
+    const esAdmin = opcionSeleccionada.getAttribute("data-admin") === "true";
+
     fetch(`/permisos/buscar.json?perfil_id=${perfilId}&nocache=${Date.now()}`)
       .then(res => res.json())
       .then(data => {
         cuerpoMatriz.innerHTML = "";
         
         const canEdit = data.permisos_acciones.can_edit;
-        const disabledAttr = canEdit ? "" : "disabled";
-        btnGuardarMatriz.style.display = canEdit ? "inline-flex" : "none";
+        
+        // BLOQUEAR CHECKBOXES: Si es Admin, o si no tiene permisos de edición, se bloquean.
+        const disabledAttr = (esAdmin || !canEdit) ? "disabled" : "";
+        
+        // OCULTAR BOTÓN GUARDAR: Si es admin no necesita guardar
+        btnGuardarMatriz.style.display = (!esAdmin && canEdit) ? "inline-flex" : "none";
         
         // Iterar sobre módulos agrupados
         for (const [tituloGrupo, modulos] of Object.entries(data.modulos_agrupados)) {
@@ -414,21 +421,27 @@ document.addEventListener("turbo:load", function() {
             fila.setAttribute("data-id-modulo", m.idModulo);
             fila.classList.add("fila-modulo");
             
+            // MARCAR CHECKBOXES: Si es admin siempre se marcan, si no, respeta la BD
+            const chkAgregar = (esAdmin || m.bitAgregar) ? 'checked' : '';
+            const chkEditar = (esAdmin || m.bitEditar) ? 'checked' : '';
+            const chkEliminar = (esAdmin || m.bitEliminar) ? 'checked' : '';
+            const chkConsultar = (esAdmin || m.bitConsulta) ? 'checked' : '';
+
             fila.innerHTML = `
               <td style="padding-left: 35px;">
                 <strong>${m.nombreModulo.charAt(0).toUpperCase() + m.nombreModulo.slice(1)}</strong>
               </td>
               <td align="center">
-                <input type="checkbox" class="chk-agregar" ${m.bitAgregar ? 'checked' : ''} ${disabledAttr}>
+                <input type="checkbox" class="chk-agregar" ${chkAgregar} ${disabledAttr}>
               </td>
               <td align="center">
-                <input type="checkbox" class="chk-editar" ${m.bitEditar ? 'checked' : ''} ${disabledAttr}>
+                <input type="checkbox" class="chk-editar" ${chkEditar} ${disabledAttr}>
               </td>
               <td align="center">
-                <input type="checkbox" class="chk-eliminar" ${m.bitEliminar ? 'checked' : ''} ${disabledAttr}>
+                <input type="checkbox" class="chk-eliminar" ${chkEliminar} ${disabledAttr}>
               </td>
               <td align="center">
-                <input type="checkbox" class="chk-consultar" ${m.bitConsulta ? 'checked' : ''} ${disabledAttr}>
+                <input type="checkbox" class="chk-consultar" ${chkConsultar} ${disabledAttr}>
               </td>
             `;
             cuerpoMatriz.appendChild(fila);
