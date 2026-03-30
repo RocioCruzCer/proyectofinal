@@ -1,12 +1,10 @@
 <div class="modulos-wrapper">
   
-  <!-- Cabecera -->
   <div class="modulos-header">
     <h1>Gestión de Módulos</h1>
     <p>Administra los módulos y funcionalidades del sistema</p>
   </div>
 
-  <!-- Botón Nuevo Módulo -->
   <% if puede_agregar?("modulo") %>
     <div class="action-bar">
       <button id="btnNuevo" class="btn-new">
@@ -18,7 +16,6 @@
     </div>
   <% end %>
 
-  <!-- Tabla de módulos -->
   <div class="table-container">
     <table class="modulos-table">
       <thead>
@@ -32,7 +29,6 @@
     </table>
   </div>
 
-  <!-- Paginación -->
   <div class="pagination-container">
     <button id="btnPrimero" class="pagination-btn" title="Primera página">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -60,7 +56,6 @@
   </div>
 </div>
 
-<!-- Modal flotante para el formulario -->
 <div id="modalModulo" class="modal-overlay">
   <div class="modal-container">
     <div class="modal-card">
@@ -78,8 +73,8 @@
         
         <div class="form-group">
           <label for="strNombreModulo">Nombre del Módulo</label>
-          <input type="text" id="strNombreModulo" class="form-input" placeholder="Ej: Ventas, Inventario, Facturación, Reportes" required autocomplete="off">
-          <span class="input-hint">Ingrese un nombre descriptivo para el módulo</span>
+          <input type="text" id="strNombreModulo" class="form-input" placeholder="Ej: Ventas" required autocomplete="off" maxlength="15">
+          <span class="input-hint">Máximo 15 caracteres, sin espacios.</span>
         </div>
       </div>
       
@@ -579,7 +574,10 @@
   document.addEventListener("turbo:load", function() {
     let paginaActual = 1;
     let totalPaginas = 1;
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    
+    const metaCsrf = document.querySelector('meta[name="csrf-token"]');
+    if (!metaCsrf) return;
+    const csrfToken = metaCsrf.content;
 
     const cuerpoTabla = document.getElementById("tablaModulosCuerpo");
     const modal = document.getElementById("modalModulo");
@@ -631,8 +629,8 @@
           document.getElementById("textoPaginacion").innerText = `Página ${data.pagina_actual} de ${data.total_paginas || 1}`;
           document.getElementById("btnAnterior").disabled = data.pagina_actual <= 1;
           document.getElementById("btnSiguiente").disabled = data.pagina_actual >= (data.total_paginas || 1);
-          document.getElementById("btnPrimero").disabled = data.pagina_actual <= 1;
-          document.getElementById("btnUltimo").disabled = data.pagina_actual >= (data.total_paginas || 1);
+          if (btnPrimero) btnPrimero.disabled = data.pagina_actual <= 1;
+          if (btnUltimo) btnUltimo.disabled = data.pagina_actual >= (data.total_paginas || 1);
           paginaActual = data.pagina_actual;
         })
         .catch(error => console.error("Error cargando módulos:", error));
@@ -704,12 +702,26 @@
       }
     });
 
+    // Validar en tiempo real: eliminar espacios mientras escribe
+    inputNombre.addEventListener("input", function() {
+      this.value = this.value.replace(/\s/g, ''); // Borra cualquier espacio al instante
+    });
+
     // Guardar módulo
     document.getElementById("btnGuardar").addEventListener("click", () => {
       const nombre = inputNombre.value.trim();
       
+      // Validaciones antes de enviar
       if (nombre === "") {
         alert("El nombre del módulo es obligatorio.");
+        return;
+      }
+      if (nombre.length > 15) {
+        alert("El nombre del módulo no puede tener más de 15 caracteres.");
+        return;
+      }
+      if (/\s/.test(nombre)) {
+        alert("El nombre del módulo no puede contener espacios.");
         return;
       }
 
